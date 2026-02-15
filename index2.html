@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Burp Suite Professional v2025.12.5 - Temporary Project - CSRR</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-darkest: #1a1a1e;
+    --bg-dark: #222228;
+    --bg-mid: #2a2a32;
+    --bg-panel: #252530;
+    --bg-row: #232329;
+    --bg-row-hover: #2c2c38;
+    --bg-row-selected: #2a3a5c;
+    --bg-input: #1c1c22;
+    --border: #3a3a4a;
+    --border-light: #44445a;
+    --accent-orange: #e8742a;
+    --accent-orange-dark: #c05a10;
+    --accent-orange-glow: rgba(232, 116, 42, 0.25);
+    --accent-blue: #4488cc;
+    --accent-green: #44cc88;
+    --accent-yellow: #e8c040;
+    --text-primary: #d8d8e8;
+    --text-secondary: #8888aa;
+    --text-muted: #555568;
+    --text-url: #5599dd;
+    --text-get: #44cc88;
+    --text-post: #e8742a;
+    --header-bg: #1d1d24;
+    --tab-active: #2a2a35;
+    --scrollbar-track: #1a1a20;
+    --scrollbar-thumb: #3a3a50;
+    --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+    --font-ui: 'IBM Plex Sans', -apple-system, sans-serif;
+    --highlight-get: rgba(68, 204, 136, 0.08);
+  }
+
+  body {
+    font-family: var(--font-ui);
+    background: var(--bg-darkest);
+    color: var(--text-primary);
+    font-size: 12px;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+  }
+
+  /* ─── TITLE BAR ─── */
+  .titlebar {
+    background: var(--bg-darkest);
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .titlebar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .titlebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--accent-orange);
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+  }
+  .titlebar-logo-icon {
+    width: 18px;
+    height: 18px;
+    background: var(--accent-orange);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #fff;
+    font-weight: 800;
+  }
+  .titlebar-menu {
+    display: flex;
+    gap: 0;
+  }
+  .titlebar-menu-item {
+    padding: 4px 10px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: 3px;
+    transition: color 0.15s, background 0.15s;
+  }
+  .titlebar-menu-item:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+  .titlebar-title {
+    font-size: 11px;
+    color: var(--text-secondary);
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+  .titlebar-controls {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .titlebar-btn {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    outline: none;
+  }
+  .titlebar-btn.min { background: #f1c40f; }
+  .titlebar-btn.max { background: #2ecc71; }
+  .titlebar-btn.close { background: #e74c3c; }
+
+  /* ─── MAIN TABS ─── */
+  .main-tabs {
+    background: var(--header-bg);
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    padding: 0 8px;
+    height: 38px;
+    flex-shrink: 0;
+    gap: 2px;
+    position: relative;
+  }
+  .main-tab {
+    padding: 6px 14px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: 4px 4px 0 0;
+    transition: all 0.15s;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+  .main-tab:hover { color: var(--text-primary); background: rgba(255,255,255,0.04); }
+  .main-tab.active {
+    color: var(--text-primary);
+    background: var(--bg-dark);
+    border-bottom: 2px solid var(--accent-orange);
+  }
+  .main-tab-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .icon-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    width: 28px; height: 28px;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    font-size: 14px;
+  }
+  .icon-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.08); }
+
+  /* ─── PROXY SUB-TABS ─── */
+  .sub-tabs {
+    background: var(--bg-dark);
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    padding: 0 8px;
+    height: 34px;
+    flex-shrink: 0;
+    gap: 2px;
+  }
+  .sub-tab {
+    padding: 5px 12px;
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.15s;
+  }
+  .sub-tab:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+  .sub-tab.active {
+    color: var(--text-primary);
+    background: var(--bg-mid);
+  }
+  .sub-tab-divider { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+  .sub-tab-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ─── INTERCEPT TOOLBAR ─── */
+  .intercept-toolbar {
+    background: var(--bg-dark);
+    display: flex;
+    align-items: center;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border);
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .btn-intercept {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 4px;
+    font-size: 11.5px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    transition: all 0.15s;
+    font-family: var(--font-ui);
+  }
+  .btn-intercept.on {
+    background: linear-gradient(135deg, var(--accent-orange), var(--accent-orange-dark));
+    color: #fff;
+    box-shadow: 0 0 12px var(--accent-orange-glow);
+  }
+  .btn-intercept.on:hover { filter: brightness(1.1); }
+  .btn-forward {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 4px 0 0 4px;
+    font-size: 11.5px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    background: var(--bg-mid);
+    color: var(--text-primary);
+    border: 1px solid var(--border-light);
+    transition: all 0.15s;
+    font-family: var(--font-ui);
+  }
+  .btn-forward:hover { background: var(--bg-panel); }
+  .btn-dropdown {
+    padding: 5px 8px;
+    background: var(--bg-mid);
+    border: 1px solid var(--border-light);
+    border-left: none;
+    border-radius: 0 4px 4px 0;
+    color: var(--text-secondary);
+    cursor: pointer;
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+  .btn-drop {
+    padding: 5px 14px;
+    background: var(--bg-mid);
+    border: 1px solid var(--border-light);
+    border-radius: 4px 0 0 4px;
+    color: var(--text-primary);
+    font-size: 11.5px;
+    cursor: pointer;
+    font-family: var(--font-ui);
+    transition: all 0.15s;
+  }
+  .btn-drop:hover { background: var(--bg-panel); }
+  .btn-drop-arrow {
+    padding: 5px 8px;
+    background: var(--bg-mid);
+    border: 1px solid var(--border-light);
+    border-left: none;
+    border-radius: 0 4px 4px 0;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 10px;
+  }
+  .intercept-spacer { flex: 1; }
+  .intercept-target {
+    font-size: 11px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .intercept-target a { color: var(--text-url); cursor: pointer; }
+  .intercept-target a:hover { text-decoration: underline; }
+  .intercept-target .ip { color: var(--text-muted); }
+  .pen-icon { color: var(--text-muted); font-size: 12px; cursor: pointer; }
+  .pen-icon:hover { color: var(--text-secondary); }
+
+  /* ─── MAIN CONTENT ─── */
+  .main-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    background: var(--bg-darkest);
+  }
+
+  /* ─── HISTORY TABLE ─── */
+  .history-table-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .history-header {
+    display: grid;
+    grid-template-columns: 90px 55px 80px 65px 1fr 100px 65px;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-secondary);
+    padding: 0;
+    height: 26px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .history-header-cell {
+    padding: 0 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+  .history-header-cell:hover { background: rgba(255,255,255,0.04); }
+  .history-header-cell:last-child { border-right: none; }
+  .history-body {
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex: 1;
+  }
+  .history-body::-webkit-scrollbar { width: 8px; }
+  .history-body::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+  .history-body::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
+  .history-row {
+    display: grid;
+    grid-template-columns: 90px 55px 80px 65px 1fr 100px 65px;
+    height: 22px;
+    align-items: center;
+    border-bottom: 1px solid rgba(60,60,75,0.4);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .history-row:hover { background: var(--bg-row-hover); }
+  .history-row.selected { background: var(--bg-row-selected) !important; }
+  .history-row.get-row { background: var(--highlight-get); }
+  .history-cell {
+    padding: 0 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 11.5px;
+    color: var(--text-primary);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid rgba(60,60,75,0.3);
+  }
+  .history-cell:last-child { border-right: none; }
+  .method-get { color: var(--text-get); font-weight: 600; }
+  .method-post { color: var(--text-post); font-weight: 600; }
+  .cell-url { color: var(--text-url); font-size: 11px; }
+  .cell-time { font-family: var(--font-mono); font-size: 10px; color: var(--text-secondary); }
+  .cell-type { color: var(--text-secondary); }
+
+  /* ─── SPLIT DIVIDER ─── */
+  .h-divider {
+    height: 4px;
+    background: var(--bg-darkest);
+    cursor: ns-resize;
+    flex-shrink: 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .h-divider:hover { background: var(--accent-orange); }
+
+  /* ─── REQUEST PANEL ─── */
+  .request-panel {
+    background: var(--bg-panel);
+    display: flex;
+    flex-direction: column;
+    height: 340px;
+    flex-shrink: 0;
+    border-top: 1px solid var(--border);
+  }
+  .request-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .request-panel-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.3px;
+  }
+  .panel-view-tabs {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .panel-view-tab {
+    padding: 3px 10px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.15s;
+  }
+  .panel-view-tab:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+  .panel-view-tab.active { color: var(--text-primary); background: var(--bg-mid); }
+  .panel-tools {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .panel-tool-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px 4px;
+    border-radius: 3px;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .panel-tool-btn:hover { color: var(--text-secondary); background: rgba(255,255,255,0.06); }
+
+  .request-editor {
+    flex: 1;
+    overflow: auto;
+    padding: 8px 0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.7;
+    background: var(--bg-panel);
+    position: relative;
+  }
+  .request-editor::-webkit-scrollbar { width: 8px; }
+  .request-editor::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+  .request-editor::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
+
+  .editor-line {
+    display: flex;
+    align-items: baseline;
+    padding: 0 12px 0 4px;
+    min-height: 20px;
+  }
+  .line-number {
+    color: var(--text-muted);
+    font-size: 10px;
+    width: 24px;
+    text-align: right;
+    padding-right: 10px;
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    line-height: 1.7;
+  }
+  .line-content {
+    color: var(--text-primary);
+    white-space: pre;
+    line-height: 1.7;
+  }
+  .token-method { color: var(--text-get); font-weight: 600; }
+  .token-path { color: #aad4ff; }
+  .token-http { color: var(--text-muted); }
+  .token-key { color: #c8a8ff; }
+  .token-value { color: #88d4a8; }
+  .token-colon { color: var(--text-muted); }
+
+  .editor-cursor-line {
+    background: rgba(255,255,255,0.02);
+  }
+
+  /* ─── RIGHT INSPECTOR PANEL ─── */
+  .inspector-panel {
+    width: 280px;
+    flex-shrink: 0;
+    background: var(--bg-dark);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .inspector-header {
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .inspector-header-tools {
+    display: flex;
+    gap: 4px;
+  }
+  .inspector-body {
+    overflow-y: auto;
+    flex: 1;
+  }
+  .inspector-body::-webkit-scrollbar { width: 6px; }
+  .inspector-body::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+  .inspector-body::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+
+  .inspector-section {
+    border-bottom: 1px solid var(--border);
+  }
+  .inspector-section-header {
+    display: flex;
+    align-items: center;
+    padding: 7px 12px;
+    cursor: pointer;
+    transition: background 0.1s;
+    background: rgba(255,255,255,0.02);
+  }
+  .inspector-section-header:hover { background: rgba(255,255,255,0.05); }
+  .inspector-section-title {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--text-primary);
+    flex: 1;
+  }
+  .inspector-section-count {
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--bg-mid);
+    padding: 1px 6px;
+    border-radius: 10px;
+    margin-right: 8px;
+  }
+  .inspector-section-arrow {
+    color: var(--text-muted);
+    font-size: 10px;
+    transition: transform 0.2s;
+  }
+  .inspector-section-arrow.open { transform: rotate(0deg); }
+  .inspector-section-arrow.closed { transform: rotate(-90deg); }
+
+  .inspector-section-body {
+    padding: 6px 0;
+    background: var(--bg-panel);
+  }
+  .inspector-empty {
+    padding: 12px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-style: italic;
+  }
+  .inspector-add-btn {
+    display: block;
+    margin: 6px auto;
+    padding: 4px 20px;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text-secondary);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: var(--font-ui);
+  }
+  .inspector-add-btn:hover { border-color: var(--accent-orange); color: var(--accent-orange); }
+
+  .inspector-kv-row {
+    display: flex;
+    align-items: center;
+    padding: 4px 12px;
+    gap: 6px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: background 0.1s;
+    border-bottom: 1px solid rgba(60,60,75,0.3);
+  }
+  .inspector-kv-row:hover { background: rgba(255,255,255,0.04); }
+  .inspector-kv-key {
+    color: var(--text-secondary);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .inspector-kv-value {
+    color: var(--text-primary);
+    flex: 1.5;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+  }
+  .inspector-kv-arrow {
+    color: var(--text-muted);
+    font-size: 9px;
+    flex-shrink: 0;
+  }
+
+  /* Protocol tabs in inspector */
+  .proto-tabs {
+    display: flex;
+    gap: 4px;
+    margin: 0 6px;
+  }
+  .proto-tab {
+    padding: 2px 8px;
+    font-size: 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    background: none;
+    transition: all 0.1s;
+    font-family: var(--font-ui);
+  }
+  .proto-tab.active {
+    background: var(--bg-mid);
+    color: var(--text-primary);
+    border-color: var(--accent-orange);
+  }
+
+  /* ─── SIDE NOTES TAB ─── */
+  .notes-sidebar {
+    writing-mode: vertical-rl;
+    width: 22px;
+    background: var(--bg-panel);
+    border-left: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 12px 0;
+    flex-shrink: 0;
+  }
+  .notes-tab {
+    font-size: 11px;
+    color: var(--text-muted);
+    cursor: pointer;
+    letter-spacing: 1px;
+    padding: 8px 4px;
+    transition: color 0.15s;
+    text-transform: uppercase;
+  }
+  .notes-tab:hover { color: var(--text-secondary); }
+
+  /* ─── STATUS BAR ─── */
+  .statusbar {
+    background: var(--bg-darkest);
+    height: 26px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+    gap: 12px;
+  }
+  .status-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 3px;
+    transition: all 0.15s;
+  }
+  .status-btn:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+  }
+  .status-search {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .status-search input {
+    flex: 1;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 2px 8px;
+    color: var(--text-primary);
+    font-size: 11px;
+    font-family: var(--font-ui);
+    outline: none;
+    height: 20px;
+  }
+  .status-search input:focus { border-color: var(--accent-orange); }
+  .status-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+  }
+  .status-highlights {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .status-memory {
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .mem-icon { font-size: 12px; }
+
+  /* ─── SCROLLBAR GLOBAL ─── */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+  ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
+  ::-webkit-scrollbar-corner { background: var(--scrollbar-track); }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  .cursor-blink::after {
+    content: '|';
+    color: var(--accent-orange);
+    animation: blink 1.2s ease-in-out infinite;
+    margin-left: 1px;
+  }
+
+  .intercept-pulse {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #44ff88;
+    box-shadow: 0 0 6px rgba(68,255,136,0.8);
+    animation: pulse 1.5s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 6px rgba(68,255,136,0.8); }
+    50% { opacity: 0.5; box-shadow: 0 0 2px rgba(68,255,136,0.3); }
+  }
+
+  /* ─── INSPECTOR RIGHT SIDE PANEL ─── */
+  .right-panels {
+    display: flex;
+    flex-direction: row;
+    border-left: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  /* Main middle area splits */
+  .middle-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Top half: history table */
+  .top-half {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 180px;
+  }
+</style>
+</head>
+<body>
+
+<!-- TITLE BAR -->
+<div class="titlebar">
+  <div class="titlebar-left">
+    <div class="titlebar-logo">
+      <div class="titlebar-logo-icon">🔥</div>
+      Burp
+    </div>
+    <div class="titlebar-menu">
+      <span class="titlebar-menu-item">Project</span>
+      <span class="titlebar-menu-item">Intruder</span>
+      <span class="titlebar-menu-item">Repeater</span>
+      <span class="titlebar-menu-item">View</span>
+      <span class="titlebar-menu-item">Help</span>
+    </div>
+  </div>
+  <div class="titlebar-title">Burp Suite Professional v2025.12.5 – Temporary Project – CSRR</div>
+  <div class="titlebar-controls">
+    <div class="titlebar-btn min"></div>
+    <div class="titlebar-btn max"></div>
+    <div class="titlebar-btn close"></div>
+  </div>
+</div>
+
+<!-- MAIN NAV TABS -->
+<div class="main-tabs">
+  <div class="main-tab">Dashboard</div>
+  <div class="main-tab">Target</div>
+  <div class="main-tab active">Proxy</div>
+  <div class="main-tab">Intruder</div>
+  <div class="main-tab">Repeater</div>
+  <div class="main-tab">Collaborator</div>
+  <div class="main-tab">Sequencer</div>
+  <div class="main-tab">Decoder</div>
+  <div class="main-tab">Comparer</div>
+  <div class="main-tab">Logger</div>
+  <div class="main-tab">Organizer</div>
+  <div class="main-tab">Extensions</div>
+  <div class="main-tab">Learn</div>
+  <div class="main-tab-right">
+    <button class="icon-btn">🌐</button>
+    <button class="icon-btn">🔍</button>
+    <button class="icon-btn">⚙</button>
+  </div>
+</div>
+
+<!-- PROXY SUB-TABS -->
+<div class="sub-tabs">
+  <div class="sub-tab active">Intercept</div>
+  <div class="sub-tab">HTTP history</div>
+  <div class="sub-tab">WebSockets history</div>
+  <div class="sub-tab">Match and replace</div>
+  <div class="sub-tab-divider"></div>
+  <div class="sub-tab" style="color: var(--accent-orange);">⚙ Proxy settings</div>
+</div>
+
+<!-- INTERCEPT TOOLBAR -->
+<div class="intercept-toolbar">
+  <button class="btn-intercept on">
+    <div class="intercept-pulse"></div>
+    Intercept on
+  </button>
+  <div style="display:flex; align-items:stretch; height:28px;">
+    <button class="btn-forward">→ Forward</button>
+    <button class="btn-dropdown" style="font-size:9px;">▼</button>
+  </div>
+  <div style="display:flex; align-items:stretch; height:28px;">
+    <button class="btn-drop">Drop</button>
+    <button class="btn-drop-arrow">▼</button>
+  </div>
+  <div class="intercept-spacer"></div>
+  <div class="intercept-target">
+    Request to
+    <a>https://content-signature-2.cdn.mozilla.net:443</a>
+    <span class="ip">&nbsp;[34.160.144.191]</span>
+    <span class="pen-icon">✏</span>
+    &nbsp;&nbsp;
+    <button class="icon-btn" style="width:22px;height:22px;font-size:12px;">🌐</button>
+    Open browser
+    <button class="icon-btn" style="width:22px;height:22px;">?</button>
+  </div>
+</div>
+
+<!-- MAIN BODY -->
+<div class="main-content">
+  <div class="middle-section">
+
+    <!-- HISTORY TABLE -->
+    <div class="top-half">
+      <div class="history-header">
+        <div class="history-header-cell">Time</div>
+        <div class="history-header-cell">Type</div>
+        <div class="history-header-cell">Direction</div>
+        <div class="history-header-cell">Method</div>
+        <div class="history-header-cell">URL</div>
+        <div class="history-header-cell">Status code</div>
+        <div class="history-header-cell">Length</div>
+      </div>
+      <div class="history-body">
+        <div class="history-row selected" onclick="selectRow(this)">
+          <div class="history-cell cell-time">00:21:57 16 F…</div>
+          <div class="history-cell cell-type">HTTP</div>
+          <div class="history-cell">→ Request</div>
+          <div class="history-cell"><span class="method-get">GET</span></div>
+          <div class="history-cell cell-url">https://content-signature-2.cdn.mozilla.net/g/chains/202402/remote-settings.content-signature.mozilla.org-2026-03-08-09-54-23.chain</div>
+          <div class="history-cell"></div>
+          <div class="history-cell"></div>
+        </div>
+        <div class="history-row" onclick="selectRow(this)">
+          <div class="history-cell cell-time">00:21:57 16 F…</div>
+          <div class="history-cell cell-type">HTTP</div>
+          <div class="history-cell">→ Request</div>
+          <div class="history-cell"><span class="method-get">GET</span></div>
+          <div class="history-cell cell-url">https://content-signature-2.cdn.mozilla.net/g/chains/202402/remote-settings.content-signature.mozilla.org-2026-03-08-09-54-23.chain</div>
+          <div class="history-cell"></div>
+          <div class="history-cell"></div>
+        </div>
+        <div class="history-row" onclick="selectRow(this)">
+          <div class="history-cell cell-time">00:21:57 16 F…</div>
+          <div class="history-cell cell-type">HTTP</div>
+          <div class="history-cell">→ Request</div>
+          <div class="history-cell"><span class="method-post">POST</span></div>
+          <div class="history-cell cell-url">https://ads.mozilla.org/v1/ads</div>
+          <div class="history-cell"></div>
+          <div class="history-cell"></div>
+        </div>
+        <div class="history-row" onclick="selectRow(this)">
+          <div class="history-cell cell-time">00:21:58 16 F…</div>
+          <div class="history-cell cell-type">HTTP</div>
+          <div class="history-cell">→ Request</div>
+          <div class="history-cell"><span class="method-get">GET</span></div>
+          <div class="history-cell cell-url">https://content-signature-2.cdn.mozilla.net/g/chains/202402/remote-settings.content-signature.mozilla.org-2026-03-08-09-54-23.chain</div>
+          <div class="history-cell"></div>
+          <div class="history-cell"></div>
+        </div>
+        <div class="history-row" onclick="selectRow(this)">
+          <div class="history-cell cell-time">00:21:58 16 F…</div>
+          <div class="history-cell cell-type">HTTP</div>
+          <div class="history-cell">→ Request</div>
+          <div class="history-cell"><span class="method-get">GET</span></div>
+          <div class="history-cell cell-url">https://firefox.settings.services.mozilla.com/v1/</div>
+          <div class="history-cell"></div>
+          <div class="history-cell"></div>
+        </div>
+        <div class="history-row" onclick="selectRow(this)">
+          <div class="history-cell cell-time">00:21:58 16 F…</div>
+          <div class="history-cell cell-type">HTTP</div>
+          <div class="history-cell">→ Request</div>
+          <div class="history-cell"><span class="method-get">GET</span></div>
+          <div class="history-cell cell-url">https://safebrowsing.googleapis.com/v4/threatListUpdates:fetch?$ct=application/x-protobuf&key=AIzaSyD3uzXks34szqk9WhKpF7vpVPqdDbT3uPw&$httpMethod=POST&$req=ChU…</div>
+          <div class="history-cell"></div>
+          <div class="history-cell"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIVIDER -->
+    <div class="h-divider"></div>
+
+    <!-- REQUEST EDITOR PANEL -->
+    <div class="request-panel">
+      <div class="request-panel-header">
+        <div class="request-panel-title">Request</div>
+        <div class="panel-view-tabs">
+          <div class="panel-view-tab active">Pretty</div>
+          <div class="panel-view-tab">Raw</div>
+          <div class="panel-view-tab">Hex</div>
+        </div>
+        <div class="panel-tools">
+          <button class="panel-tool-btn">🔒</button>
+          <button class="panel-tool-btn">⬛</button>
+          <button class="panel-tool-btn">↕</button>
+          <button class="panel-tool-btn">⋮</button>
+        </div>
+      </div>
+      <div class="request-editor">
+        <div class="editor-line">
+          <span class="line-number">1</span>
+          <span class="line-content"><span class="token-method">GET</span> <span class="token-path">/g/chains/202402/remote-settings.content-signature.mozilla.org-2026-03-08-09-54-23.chain</span> <span class="token-http">HTTP/1.1</span></span>
+        </div>
+        <div class="editor-line">
+          <span class="line-number">2</span>
+          <span class="line-content"><span class="token-key">Host</span><span class="token-colon">:</span> <span class="token-value">content-signature-2.cdn.mozilla.net</span></span>
+        </div>
+        <div class="editor-line">
+          <span class="line-number">3</span>
+          <span class="line-content"><span class="token-key">User-Agent</span><span class="token-colon">:</span> <span class="token-value">Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0</span></span>
+        </div>
+        <div class="editor-line">
+          <span class="line-number">4</span>
+          <span class="line-content"><span class="token-key">Accept</span><span class="token-colon">:</span> <span class="token-value">*/*</span></span>
+        </div>
+        <div class="editor-line">
+          <span class="line-number">5</span>
+          <span class="line-content"><span class="token-key">Accept-Language</span><span class="token-colon">:</span> <span class="token-value">en-US,en;q=0.5</span></span>
+        </div>
+        <div class="editor-line">
+          <span class="line-number">6</span>
+          <span class="line-content"><span class="token-key">Accept-Encoding</span><span class="token-colon">:</span> <span class="token-value">gzip, deflate, br</span></span>
+        </div>
+        <div class="editor-line">
+          <span class="line-number">7</span>
+          <span class="line-content"><span class="token-key">Te</span><span class="token-colon">:</span> <span class="token-value">trailers</span></span>
+        </div>
+        <div class="editor-line editor-cursor-line">
+          <span class="line-number">8</span>
+          <span class="line-content"><span class="token-key">Connection</span><span class="token-colon">:</span> <span class="token-value cursor-blink">keep-alive</span></span>
+        </div>
+        <div class="editor-line">
+          <span class="line-number">9</span>
+          <span class="line-content"></span>
+        </div>
+        <div class="editor-line">
+          <span class="line-number">10</span>
+          <span class="line-content"></span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.middle-section -->
+
+  <!-- RIGHT INSPECTOR PANEL -->
+  <div class="right-panels">
+    <div class="inspector-panel">
+      <div class="inspector-header">
+        Inspector
+        <div class="inspector-header-tools">
+          <button class="panel-tool-btn" style="font-size:11px;">⬛</button>
+          <button class="panel-tool-btn" style="font-size:11px;">↕</button>
+          <button class="panel-tool-btn" style="font-size:11px;">✕</button>
+        </div>
+      </div>
+      <div class="inspector-body">
+
+        <!-- Request attributes -->
+        <div class="inspector-section">
+          <div class="inspector-section-header" onclick="toggleSection(this)">
+            <span class="inspector-section-title">Request attributes</span>
+            <span class="inspector-section-count">2</span>
+            <span class="inspector-section-arrow open">▼</span>
+          </div>
+          <div class="inspector-section-body">
+            <div style="padding: 4px 8px 2px; display:flex; gap:4px; align-items:center;">
+              <span style="font-size:11px;color:var(--text-secondary);width:70px;flex-shrink:0;">Protocol</span>
+              <div class="proto-tabs">
+                <button class="proto-tab active">HTTP/1</button>
+                <button class="proto-tab">HTTP/2</button>
+              </div>
+            </div>
+            <div class="inspector-kv-row">
+              <span class="inspector-kv-key">Method</span>
+              <span class="inspector-kv-value">GET</span>
+              <span class="inspector-kv-arrow">›</span>
+            </div>
+            <div class="inspector-kv-row">
+              <span class="inspector-kv-key">Path</span>
+              <span class="inspector-kv-value">/g/chains/202402/re…</span>
+              <span class="inspector-kv-arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Request query parameters -->
+        <div class="inspector-section">
+          <div class="inspector-section-header" onclick="toggleSection(this)">
+            <span class="inspector-section-title">Request query parameters</span>
+            <span class="inspector-section-count">0</span>
+            <span class="inspector-section-arrow open">▼</span>
+          </div>
+          <div class="inspector-section-body">
+            <p class="inspector-empty">It's empty in here</p>
+            <button class="inspector-add-btn">Add</button>
+          </div>
+        </div>
+
+        <!-- Request body parameters -->
+        <div class="inspector-section">
+          <div class="inspector-section-header" onclick="toggleSection(this)">
+            <span class="inspector-section-title">Request body parameters</span>
+            <span class="inspector-section-count">0</span>
+            <span class="inspector-section-arrow open">▼</span>
+          </div>
+          <div class="inspector-section-body">
+            <p class="inspector-empty">It's empty in here</p>
+            <button class="inspector-add-btn">Add</button>
+          </div>
+        </div>
+
+        <!-- Request cookies -->
+        <div class="inspector-section">
+          <div class="inspector-section-header" onclick="toggleSection(this)">
+            <span class="inspector-section-title">Request cookies</span>
+            <span class="inspector-section-count">0</span>
+            <span class="inspector-section-arrow open">▼</span>
+          </div>
+          <div class="inspector-section-body">
+            <p class="inspector-empty">It's empty in here</p>
+            <button class="inspector-add-btn">Add</button>
+          </div>
+        </div>
+
+        <!-- Request headers -->
+        <div class="inspector-section">
+          <div class="inspector-section-header" onclick="toggleSection(this)">
+            <span class="inspector-section-title">Request headers</span>
+            <span class="inspector-section-count">7</span>
+            <span class="inspector-section-arrow open">▼</span>
+          </div>
+          <div class="inspector-section-body">
+            <div style="display:grid; grid-template-columns:1fr 1fr 16px; font-size:10.5px; color:var(--text-muted); padding:2px 12px 4px; border-bottom:1px solid var(--border);">
+              <span>Name</span><span>Value</span><span></span>
+            </div>
+            <div class="inspector-kv-row">
+              <span class="inspector-kv-key">Host</span>
+              <span class="inspector-kv-value">content-signature-2….</span>
+              <span class="inspector-kv-arrow">›</span>
+            </div>
+            <div class="inspector-kv-row">
+              <span class="inspector-kv-key">User-Agent</span>
+              <span class="inspector-kv-value">Mozilla/5.0 (X11; Lin…</span>
+              <span class="inspector-kv-arrow">›</span>
+            </div>
+            <div class="inspector-kv-row">
+              <span class="inspector-kv-key">Accept</span>
+              <span class="inspector-kv-value">*/*</span>
+              <span class="inspector-kv-arrow">›</span>
+            </div>
+            <div class="inspector-kv-row">
+              <span class="inspector-kv-key">Accept-Language</span>
+              <span class="inspector-kv-value">en-US,en;q=0.5</span>
+              <span class="inspector-kv-arrow">›</span>
+            </div>
+            <div class="inspector-kv-row">
+              <span class="inspector-kv-key">Accept-Encoding</span>
+              <span class="inspector-kv-value">gzip, deflate, br</span>
+              <span class="inspector-kv-arrow">›</span>
+            </div>
+            <div class="inspector-kv-row">
+              <span class="inspector-kv-key">Te</span>
+              <span class="inspector-kv-value">trailers</span>
+              <span class="inspector-kv-arrow">›</span>
+            </div>
+            <div class="inspector-kv-row">
+              <span class="inspector-kv-key">Connection</span>
+              <span class="inspector-kv-value">keep-alive</span>
+              <span class="inspector-kv-arrow">›</span>
+            </div>
+            <button class="inspector-add-btn" style="margin-top:4px;">Add</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- NOTES TAB -->
+    <div class="notes-sidebar">
+      <span class="notes-tab">Notes</span>
+    </div>
+  </div>
+
+</div><!-- /.main-content -->
+
+<!-- STATUS BAR -->
+<div class="statusbar">
+  <button class="status-btn">
+    <div class="status-dot"></div>
+    Event log
+  </button>
+  <button class="status-btn">All issues</button>
+  <div class="status-search">
+    <input type="text" placeholder="Search">
+  </div>
+  <div class="status-right">
+    <span class="status-highlights">0 highlights</span>
+    <span class="status-memory">
+      <span class="mem-icon">💾</span>
+      Memory: 156.1MB of 1.91GB
+    </span>
+  </div>
+</div>
+
+<script>
+  function selectRow(row) {
+    document.querySelectorAll('.history-row').forEach(r => r.classList.remove('selected'));
+    row.classList.add('selected');
+  }
+
+  function toggleSection(header) {
+    const body = header.nextElementSibling;
+    const arrow = header.querySelector('.inspector-section-arrow');
+    if (body.style.display === 'none') {
+      body.style.display = '';
+      arrow.classList.remove('closed');
+      arrow.classList.add('open');
+    } else {
+      body.style.display = 'none';
+      arrow.classList.remove('open');
+      arrow.classList.add('closed');
+    }
+  }
+
+  // Proto tab toggle
+  document.querySelectorAll('.proto-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      this.closest('.proto-tabs').querySelectorAll('.proto-tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  // Panel view tabs
+  document.querySelectorAll('.panel-view-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      this.closest('.panel-view-tabs').querySelectorAll('.panel-view-tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  // Sub tabs
+  document.querySelectorAll('.sub-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  // Main tabs
+  document.querySelectorAll('.main-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  // Intercept toggle
+  const interceptBtn = document.querySelector('.btn-intercept');
+  interceptBtn.addEventListener('click', function() {
+    const isOn = this.classList.contains('on');
+    if (isOn) {
+      this.classList.remove('on');
+      this.innerHTML = '<div style="width:7px;height:7px;border-radius:50%;background:var(--text-muted);flex-shrink:0;"></div> Intercept off';
+      this.style.background = 'var(--bg-mid)';
+      this.style.color = 'var(--text-secondary)';
+      this.style.boxShadow = 'none';
+    } else {
+      this.classList.add('on');
+      this.innerHTML = '<div class="intercept-pulse"></div> Intercept on';
+      this.style.background = '';
+      this.style.color = '';
+      this.style.boxShadow = '';
+    }
+  });
+</script>
+</body>
+</html>
