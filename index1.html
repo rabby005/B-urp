@@ -1,0 +1,2041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Burp Suite Professional v2025.12.5 - Temporary Project - CSRR</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 12px;
+            background: #2b2b2b;
+            color: #cccccc;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ========== TITLE BAR ========== */
+        .title-bar {
+            background: #3c3f41;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 8px;
+            border-bottom: 1px solid #555;
+            flex-shrink: 0;
+            -webkit-app-region: drag;
+        }
+        .title-bar-left { display: flex; align-items: center; gap: 6px; }
+        .title-bar-icon { font-size: 14px; }
+        .title-bar-text { font-size: 11px; color: #aaa; }
+        .title-bar-controls { display: flex; gap: 4px; }
+        .win-btn {
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 8px; font-weight: bold;
+        }
+        .win-btn.min { background: #ffbd2e; color: #7a5c00; }
+        .win-btn.max { background: #27c93f; color: #0a4a16; }
+        .win-btn.close { background: #ff5f57; color: #7a0000; }
+
+        /* ========== MENU BAR ========== */
+        .menu-bar {
+            background: #3c3f41;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            padding: 0 4px;
+            border-bottom: 1px solid #555;
+            flex-shrink: 0;
+        }
+        .menu-icon { padding: 2px 8px; cursor: pointer; }
+        .menu-icon img, .burp-logo {
+            display: inline-block;
+            width: 16px; height: 16px;
+            background: #e8491e;
+            border-radius: 2px;
+            text-align: center;
+            font-size: 10px;
+            font-weight: bold;
+            line-height: 16px;
+            color: white;
+        }
+        .menu-item-bar {
+            padding: 2px 8px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #bbb;
+            border-radius: 3px;
+        }
+        .menu-item-bar:hover { background: #4e5254; color: #fff; }
+
+        /* ========== MAIN TABS ========== */
+        .main-tabs {
+            background: #3c3f41;
+            display: flex;
+            align-items: flex-end;
+            padding: 0 4px;
+            border-bottom: 1px solid #555;
+            flex-shrink: 0;
+            height: 32px;
+        }
+        .main-tab {
+            padding: 4px 14px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #aaa;
+            border: 1px solid transparent;
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            top: 1px;
+            background: transparent;
+            white-space: nowrap;
+        }
+        .main-tab:hover { color: #ddd; background: #4a4c4e; }
+        .main-tab.active {
+            background: #2b2b2b;
+            color: #ddd;
+            border-color: #555;
+            border-bottom: 1px solid #2b2b2b;
+        }
+        .tab-extras { display: flex; align-items: center; gap: 6px; margin-left: auto; padding-right: 6px; }
+        .tab-icon-btn {
+            width: 20px; height: 20px;
+            background: #4e5254;
+            border: none; color: #aaa;
+            border-radius: 3px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px;
+        }
+        .tab-icon-btn:hover { background: #5e6264; color: #fff; }
+
+        /* ========== LAYOUT ========== */
+        .app-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* ========== SIDEBAR ========== */
+        .sidebar {
+            width: 308px;
+            background: #2b2b2b;
+            border-right: 1px solid #555;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 10px;
+            border-bottom: 1px solid #555;
+            background: #333;
+        }
+        .sidebar-title { font-size: 12px; font-weight: 600; color: #ccc; }
+        .sidebar-btns { display: flex; gap: 6px; }
+        .scan-btn {
+            padding: 3px 10px;
+            border: none;
+            border-radius: 3px;
+            font-size: 11px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+        }
+        .scan-btn.orange { background: #e8491e; color: white; }
+        .scan-btn.orange:hover { background: #d03d15; }
+        .scan-btn.blue { background: #3a7bd5; color: white; }
+        .scan-btn.blue:hover { background: #2d6abf; }
+
+        .sidebar-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-bottom: 1px solid #555;
+            background: #2e2e2e;
+        }
+        .icon-btn-sm {
+            width: 22px; height: 22px;
+            background: none; border: none;
+            color: #888; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 3px; font-size: 12px;
+        }
+        .icon-btn-sm:hover { background: #444; color: #ddd; }
+        .filter-btn {
+            display: flex; align-items: center; gap: 4px;
+            background: none; border: none;
+            color: #888; cursor: pointer;
+            font-size: 11px; font-family: inherit;
+            padding: 2px 4px; border-radius: 3px;
+        }
+        .filter-btn:hover { color: #ddd; background: #444; }
+        .search-box {
+            flex: 1;
+            background: #3c3f41;
+            border: 1px solid #555;
+            color: #ccc;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-family: inherit;
+        }
+        .search-box::placeholder { color: #666; }
+        .search-box:focus { outline: none; border-color: #3a7bd5; }
+        .search-icon-btn {
+            background: none; border: none;
+            color: #666; cursor: pointer; font-size: 12px;
+        }
+
+        /* Task Cards */
+        .task-card {
+            border-bottom: 1px solid #404040;
+            padding: 10px 10px 8px 10px;
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+        .task-card:hover { background: #323232; }
+        .task-card.active { background: #2d3f5c; border-left: 3px solid #3a7bd5; }
+
+        .task-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+        .task-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: #ccc;
+            flex: 1;
+        }
+        .task-actions { display: flex; gap: 2px; }
+        .task-icon-btn {
+            background: none; border: none;
+            color: #666; cursor: pointer;
+            font-size: 12px; padding: 1px 3px;
+            border-radius: 2px;
+        }
+        .task-icon-btn:hover { color: #aaa; background: #444; }
+
+        .task-desc {
+            font-size: 11px;
+            color: #777;
+            margin-bottom: 4px;
+        }
+        .task-desc2 {
+            font-size: 10px;
+            color: #666;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+        .task-badges {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 5px;
+        }
+        .badge-label { font-size: 10px; color: #777; }
+        .badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 10px;
+            color: white;
+            min-width: 22px;
+            text-align: center;
+        }
+        .badge.red { background: #c0392b; }
+        .badge.orange { background: #d35400; }
+        .badge.blue { background: #2980b9; }
+        .badge.gray { background: #555; }
+
+        .capture-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            color: #777;
+        }
+        .toggle {
+            width: 32px; height: 16px;
+            background: #3a7bd5;
+            border-radius: 8px;
+            position: relative;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .toggle::after {
+            content: '';
+            position: absolute;
+            width: 12px; height: 12px;
+            background: white;
+            border-radius: 50%;
+            top: 2px; right: 2px;
+            transition: right 0.2s;
+        }
+        .toggle.off { background: #555; }
+        .toggle.off::after { right: 18px; }
+
+        /* ========== MAIN CONTENT ========== */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-width: 0;
+        }
+
+        .content-toolbar {
+            display: flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-bottom: 1px solid #555;
+            background: #2e2e2e;
+            gap: 8px;
+        }
+        .back-btn {
+            background: none; border: none;
+            color: #888; cursor: pointer;
+            font-size: 14px; padding: 2px;
+        }
+        .content-title-main {
+            font-size: 13px;
+            font-weight: 500;
+            color: #ccc;
+            flex: 1;
+        }
+        .rate-btn {
+            display: flex; align-items: center; gap: 4px;
+            background: none; border: none;
+            color: #f0b429; cursor: pointer;
+            font-size: 11px; font-family: inherit;
+        }
+        .rate-btn:hover { color: #f7cc50; }
+
+        .content-tabs {
+            display: flex;
+            align-items: center;
+            background: #2e2e2e;
+            border-bottom: 1px solid #555;
+            padding: 0 8px;
+        }
+        .ctab {
+            padding: 6px 14px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #888;
+            border-bottom: 2px solid transparent;
+            white-space: nowrap;
+        }
+        .ctab:hover { color: #ccc; }
+        .ctab.active {
+            color: #ccc;
+            border-bottom-color: #3a7bd5;
+        }
+
+        .content-body {
+            flex: 1;
+            overflow-y: auto;
+            background: #2b2b2b;
+        }
+
+        .vuln-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-bottom: 1px solid #404040;
+        }
+        .vuln-section-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #ccc;
+        }
+        .warn-icon { color: #f0a500; font-size: 13px; }
+        .view-all-link {
+            font-size: 11px;
+            color: #3a7bd5;
+            cursor: pointer;
+            background: none; border: none;
+            font-family: inherit;
+        }
+        .view-all-link:hover { text-decoration: underline; color: #5a9bf5; }
+
+        /* Vuln Table */
+        .vuln-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+        .vuln-table th {
+            padding: 5px 12px;
+            text-align: left;
+            background: #333;
+            color: #999;
+            font-weight: 500;
+            border-bottom: 1px solid #404040;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .vuln-table th:hover { background: #383838; color: #ccc; }
+        .vuln-table th.sorted { color: #3a7bd5; }
+        .vuln-table th .sort-arrow { font-size: 9px; margin-left: 3px; }
+
+        .vuln-table tr { border-bottom: 1px solid #383838; cursor: pointer; }
+        .vuln-table tr:hover { background: #323232; }
+        .vuln-table td { padding: 4px 12px; color: #bbb; }
+
+        .severity-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            font-size: 9px;
+            font-weight: bold;
+            margin-right: 5px;
+            flex-shrink: 0;
+            vertical-align: middle;
+        }
+        .sev-high { background: #c0392b; color: white; }
+        .sev-medium { background: #d35400; color: white; }
+        .sev-low { background: #2980b9; color: white; }
+        .sev-info { background: #555; color: #ccc; font-style: italic; }
+
+        .issue-name { color: #bbb; }
+        .host-name { color: #8ab4f8; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+        .time-val { color: #888; font-family: 'JetBrains Mono', monospace; font-size: 10px; white-space: nowrap; }
+
+        /* ========== RIGHT PANEL ========== */
+        .right-panel {
+            width: 340px;
+            background: #2b2b2b;
+            border-left: 1px solid #555;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+
+        .rp-section {
+            border-bottom: 1px solid #404040;
+            padding: 10px 14px;
+        }
+        .rp-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #bbb;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .rp-title .clock-icon { color: #888; font-size: 11px; }
+        .rp-link {
+            float: right;
+            font-size: 10px;
+            color: #3a7bd5;
+            cursor: pointer;
+            font-weight: 400;
+            background: none; border: none;
+            font-family: inherit;
+        }
+        .rp-link:hover { text-decoration: underline; }
+
+        .rp-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2px 0;
+            font-size: 11px;
+        }
+        .rp-label { color: #888; }
+        .rp-value { color: #ccc; font-weight: 500; }
+
+        .rp-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+        .rp-grid .rp-row { flex-direction: column; align-items: flex-start; padding: 3px 0; }
+        .rp-grid .rp-label { font-size: 10px; }
+        .rp-grid .rp-value { font-size: 12px; color: #ccc; }
+
+        /* Task Log */
+        .task-log {
+            padding: 8px 14px;
+            flex: 1;
+        }
+        .task-log-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #bbb;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .log-entries {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9.5px;
+            color: #777;
+            line-height: 1.5;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+        .log-entry { padding: 1px 0; }
+        .log-entry:hover { color: #aaa; }
+        .log-entry.active-log { color: #6a9dd5; }
+
+        /* ========== STATUS BAR ========== */
+        .status-bar {
+            background: #3c3f41;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            border-top: 1px solid #555;
+            flex-shrink: 0;
+        }
+        .status-left { display: flex; align-items: center; gap: 12px; }
+        .status-link {
+            font-size: 11px;
+            color: #3a7bd5;
+            cursor: pointer;
+            background: none; border: none;
+            font-family: inherit;
+        }
+        .status-link:hover { text-decoration: underline; }
+        .status-issues {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: #888;
+        }
+        .status-right { display: flex; align-items: center; gap: 10px; }
+        .status-mem {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            color: #777;
+        }
+        .mem-bar {
+            width: 60px; height: 8px;
+            background: #555;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .mem-fill {
+            height: 100%;
+            background: #3a7bd5;
+            width: 72%;
+        }
+        .status-icons { display: flex; gap: 4px; }
+        .status-icon-btn {
+            background: none; border: none;
+            color: #777; cursor: pointer;
+            font-size: 12px; padding: 1px 3px;
+            border-radius: 2px;
+        }
+        .status-icon-btn:hover { color: #ccc; background: #4a4c4e; }
+
+        /* scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #2b2b2b; }
+        ::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #666; }
+
+        /* Collaborator tab styling */
+        .tab-collaborator { color: #e8491e !important; }
+
+        /* ========== TARGET TAB STYLES ========== */
+        .tgt-sidebar {
+            width: 240px;
+            background: #2b2b2b;
+            border-right: 1px solid #555;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        .tgt-sub-tabs {
+            display: flex;
+            background: #333;
+            border-bottom: 1px solid #555;
+        }
+        .tgt-stab {
+            padding: 5px 14px;
+            font-size: 12px;
+            color: #888;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        .tgt-stab:hover { color: #ccc; }
+        .tgt-stab.active { color: #ccc; border-bottom-color: #3a7bd5; }
+
+        .tgt-toolbar {
+            padding: 4px 8px;
+            border-bottom: 1px solid #555;
+            background: #2e2e2e;
+        }
+        .tgt-view-btns { display: flex; gap: 4px; margin-bottom: 4px; }
+        .tgt-view-btn {
+            padding: 2px 10px;
+            font-size: 11px;
+            background: #3c3f41;
+            border: 1px solid #555;
+            color: #888;
+            border-radius: 3px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .tgt-view-btn.active { background: #2d3f5c; color: #8ab4f8; border-color: #3a7bd5; }
+        .tgt-view-btn:hover { color: #ccc; }
+        .tgt-filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: #383838;
+            border: 1px solid #555;
+            border-radius: 3px;
+            padding: 2px 6px;
+            margin-top: 4px;
+        }
+        .tgt-icon-btn {
+            background: none; border: none;
+            color: #777; cursor: pointer;
+            font-size: 11px; padding: 1px 3px;
+            border-radius: 2px;
+            font-family: inherit;
+        }
+        .tgt-icon-btn:hover { color: #ccc; background: #4a4c4e; }
+
+        .tgt-tree {
+            flex: 1;
+            overflow-y: auto;
+            padding: 4px 0;
+        }
+        .tree-node {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 11px;
+            color: #aaa;
+        }
+        .tree-node:hover { background: #333; }
+        .tree-node.selected { background: #2d3f5c; color: #ccc; }
+        .tree-expand { font-size: 9px; color: #666; width: 12px; flex-shrink: 0; }
+        .tree-lock { font-size: 10px; width: 14px; }
+        .tree-domain { font-size: 11px; }
+        .highlighted-domain { color: #8ab4f8; }
+        .tree-children { padding-left: 36px; }
+        .tree-child {
+            padding: 3px 6px;
+            font-size: 11px;
+            color: #888;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .tree-child:hover { background: #333; color: #ccc; }
+        .tree-lock-sm { font-size: 9px; }
+
+        /* TARGET: Main content */
+        .tgt-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            overflow: hidden;
+        }
+        .tgt-url-panel {
+            border-bottom: 1px solid #555;
+            display: flex;
+            flex-direction: column;
+            height: 50%;
+            overflow: hidden;
+        }
+        .tgt-url-panel > .tgt-url-tabs { flex-shrink: 0; }
+        .tgt-url-panel > .tgt-table-wrap { flex: 1; overflow-y: auto; overflow-x: auto; }
+        .tgt-url-tabs {
+            display: flex;
+            align-items: center;
+            background: #2e2e2e;
+            border-bottom: 1px solid #555;
+            padding: 0 8px;
+        }
+        .tgt-utab {
+            padding: 5px 12px;
+            font-size: 12px;
+            color: #888;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        .tgt-utab:hover { color: #ccc; }
+        .tgt-utab.active { color: #ccc; border-bottom-color: #3a7bd5; }
+        .tgt-search-wrap { display: flex; align-items: center; gap: 3px; padding: 3px 0; }
+        .tgt-search {
+            background: #3c3f41;
+            border: 1px solid #555;
+            color: #ccc;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-family: inherit;
+            width: 150px;
+        }
+        .tgt-search:focus { outline: none; border-color: #3a7bd5; }
+        .tgt-search-btn { background: none; border: none; color: #666; cursor: pointer; font-size: 11px; }
+
+        .tgt-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            flex: 1;
+        }
+        .tgt-table th {
+            padding: 4px 8px;
+            text-align: left;
+            background: #333;
+            color: #888;
+            font-weight: 500;
+            border-bottom: 1px solid #404040;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            cursor: pointer;
+        }
+        .tgt-table th:hover { background: #383838; color: #ccc; }
+        .tgt-table tr { border-bottom: 1px solid #353535; }
+        .tgt-table tr:hover { background: #323232; }
+        .tgt-table td { padding: 3px 8px; color: #bbb; white-space: nowrap; }
+        .tgt-row-selected { background: #2d3f5c !important; }
+        .tgt-host-cell { color: #8ab4f8; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+        .tgt-url-cell { color: #a0c4ff; font-family: 'JetBrains Mono', monospace; font-size: 10px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+        .tgt-method { color: #82b366; font-weight: 600; }
+        .tgt-time { color: #888; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+
+        /* TARGET: Bottom panels */
+        .tgt-bottom {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+        .tgt-req-panel, .tgt-res-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #555;
+            min-width: 0;
+        }
+        .tgt-inspector-panel {
+            width: 220px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #555;
+        }
+        .tgt-panel-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #333;
+            border-bottom: 1px solid #555;
+            padding: 4px 8px;
+            flex-shrink: 0;
+        }
+        .tgt-panel-title { font-size: 12px; font-weight: 600; color: #bbb; }
+        .tgt-format-tabs { display: flex; gap: 2px; }
+        .tgt-ftab {
+            padding: 1px 8px;
+            font-size: 11px;
+            color: #888;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-radius: 2px;
+        }
+        .tgt-ftab.active { color: #ccc; border-color: #555; background: #3c3f41; }
+        .tgt-ftab:hover { color: #ccc; }
+        .tgt-panel-icons { display: flex; gap: 2px; }
+        .tgt-picon {
+            background: none; border: none;
+            color: #777; cursor: pointer;
+            font-size: 11px; padding: 2px 4px;
+            border-radius: 2px;
+            font-family: inherit;
+        }
+        .tgt-picon:hover { background: #4a4c4e; color: #ddd; }
+        .active-insp { color: #8ab4f8 !important; }
+
+        .tgt-code-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 6px 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10.5px;
+            line-height: 1.55;
+            color: #ccc;
+            background: #2b2b2b;
+            white-space: pre;
+        }
+        .ln { color: #555; display: inline-block; min-width: 22px; user-select: none; }
+        .http-method { color: #82b366; font-weight: bold; }
+        .http-status { color: #4CAF50; font-weight: bold; }
+        .http-header-name { color: #9cdcfe; }
+        .json-key { color: #ce9178; }
+        .json-str { color: #98c379; }
+        .json-brace { color: #ffd700; }
+
+        .tgt-panel-footer {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: #2e2e2e;
+            border-top: 1px solid #555;
+            padding: 3px 6px;
+            flex-shrink: 0;
+        }
+        .tgt-ficon {
+            background: none; border: none;
+            color: #777; cursor: pointer;
+            font-size: 11px; padding: 1px 3px;
+            border-radius: 2px; font-family: inherit;
+        }
+        .tgt-ficon:hover { color: #ccc; background: #444; }
+        .tgt-search-inline {
+            flex: 1;
+            background: #3c3f41;
+            border: 1px solid #555;
+            color: #ccc;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-family: inherit;
+        }
+        .tgt-search-inline:focus { outline: none; border-color: #3a7bd5; }
+        .tgt-highlight-count { font-size: 10px; color: #666; white-space: nowrap; }
+
+        /* Inspector */
+        .tgt-insp-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #333;
+            border-bottom: 1px solid #555;
+            padding: 4px 8px;
+        }
+        .tgt-insp-view-btns { display: flex; gap: 2px; }
+        .tgt-insp-body { flex: 1; overflow-y: auto; }
+        .insp-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-bottom: 1px solid #383838;
+            cursor: pointer;
+        }
+        .insp-row:hover { background: #333; }
+        .insp-label { flex: 1; font-size: 11px; color: #bbb; }
+        .insp-count {
+            font-size: 11px;
+            color: #888;
+            background: #444;
+            padding: 1px 6px;
+            border-radius: 10px;
+        }
+        .insp-arrow { font-size: 9px; color: #555; }
+        .insp-notes-bar {
+            padding: 5px 10px;
+            font-size: 11px;
+            color: #888;
+            background: #333;
+            border-bottom: 1px solid #404040;
+            cursor: pointer;
+        }
+        .insp-notes-bar:hover { color: #ccc; }
+        .insp-notes-content {
+            padding: 6px 10px;
+            font-size: 10px;
+            color: #555;
+            font-style: italic;
+        }
+
+        /* Inspector vertical label */
+        .tgt-inspector-panel {
+            position: relative;
+        }
+
+        /* ========== SCOPE PANEL STYLES ========== */
+        .scope-wrap {
+            flex: 1;
+            background: #f0f0f0;
+            color: #222;
+            padding: 18px 24px;
+            overflow-y: auto;
+            font-family: 'Inter', sans-serif;
+        }
+        .scope-header-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .scope-info-icon {
+            font-size: 14px;
+            color: #3a7bd5;
+        }
+        .scope-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        .scope-desc-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .scope-gear-icon { font-size: 13px; color: #666; margin-top: 1px; }
+        .scope-desc { font-size: 12px; color: #444; line-height: 1.5; }
+        .scope-checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+        .scope-checkbox-label { font-size: 12px; color: #333; cursor: pointer; }
+        .scope-section-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 6px;
+        }
+        .scope-table-wrap {
+            display: flex;
+            gap: 0;
+            max-width: 720px;
+        }
+        .scope-btn-col {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            padding-right: 6px;
+            padding-top: 26px;
+        }
+        .scope-btn {
+            padding: 3px 10px;
+            background: #e0e0e0;
+            border: 1px solid #bbb;
+            border-radius: 3px;
+            font-size: 11px;
+            font-family: inherit;
+            cursor: pointer;
+            color: #222;
+            text-align: center;
+            min-width: 80px;
+        }
+        .scope-btn:hover { background: #d0d0d0; }
+        .scope-btn:active { background: #c0c0c0; }
+        .scope-table-area {
+            flex: 1;
+            position: relative;
+            border: 1px solid #aaa;
+            background: white;
+            min-height: 120px;
+        }
+        .scope-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .scope-table th {
+            padding: 4px 8px;
+            text-align: left;
+            background: #e8e8e8;
+            color: #444;
+            font-weight: 500;
+            border-bottom: 1px solid #bbb;
+            font-size: 11px;
+        }
+        .scope-table td {
+            padding: 4px 8px;
+            color: #222;
+            border-bottom: 1px solid #eee;
+        }
+        .scope-row:hover { background: #f0f4ff; }
+        .scope-row-selected { background: #d0e3ff !important; }
+        .scope-prefix-cell {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #1a1a1a;
+        }
+        .scope-resize-handle {
+            position: absolute;
+            right: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 10px;
+            color: #999;
+            cursor: col-resize;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        /* Popup styles */
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+        }
+        .popup-overlay.show { display: block; }
+        .popup-box {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: #3c3f41;
+            border: 1px solid #666;
+            border-radius: 6px;
+            min-width: 420px;
+            max-width: 600px;
+            z-index: 1001;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .popup-hdr {
+            background: #444;
+            padding: 10px 14px;
+            border-radius: 6px 6px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #555;
+        }
+        .popup-hdr-title { font-size: 13px; font-weight: 600; color: #ddd; }
+        .popup-close {
+            background: none; border: none;
+            color: #888; cursor: pointer;
+            font-size: 18px; line-height: 1;
+        }
+        .popup-close:hover { color: #ddd; }
+        .popup-body { padding: 16px; }
+        .popup-body p { font-size: 12px; color: #aaa; line-height: 1.6; margin-bottom: 10px; }
+        .popup-body ul { padding-left: 18px; }
+        .popup-body li { font-size: 12px; color: #aaa; line-height: 1.8; }
+        .popup-body li strong { color: #ccc; }
+        .popup-hl {
+            background: #2d3f5c;
+            border-left: 3px solid #3a7bd5;
+            padding: 8px 12px;
+            border-radius: 3px;
+            font-size: 11px;
+            color: #8ab4f8;
+            margin-top: 10px;
+        }
+        .popup-steps {
+            background: #333;
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .popup-steps ol { padding-left: 18px; }
+        .popup-steps li { font-size: 12px; color: #aaa; line-height: 1.8; }
+    </style>
+</head>
+<body>
+
+    <!-- Title Bar -->
+    <div class="title-bar">
+        <div class="title-bar-left">
+            <span class="title-bar-text">Burp Suite Professional v2025.12.5 - Temporary Project - CSRR</span>
+        </div>
+        <div class="title-bar-controls">
+            <div class="win-btn min" onclick="void(0)">−</div>
+            <div class="win-btn max" onclick="void(0)">□</div>
+            <div class="win-btn close" onclick="void(0)">×</div>
+        </div>
+    </div>
+
+    <!-- Menu Bar -->
+    <div class="menu-bar">
+        <div class="menu-icon">
+            <span class="burp-logo" style="font-size:9px">🔶</span>
+        </div>
+        <span class="menu-item-bar" onclick="showPopup('project')">Project</span>
+        <span class="menu-item-bar" onclick="showPopup('intruder')">Intruder</span>
+        <span class="menu-item-bar" onclick="showPopup('repeater')">Repeater</span>
+        <span class="menu-item-bar" onclick="showPopup('view')">View</span>
+        <span class="menu-item-bar" onclick="showPopup('help')">Help</span>
+    </div>
+
+    <!-- Main Tabs -->
+    <div class="main-tabs">
+        <div class="main-tab active" onclick="setTab(this,'dashboard')" ondblclick="navigateTab(this,'dashboard')">Dashboard</div>
+        <div class="main-tab" onclick="setTab(this,'target')" ondblclick="navigateTab(this,'target')">Target</div>
+        <div class="main-tab" onclick="setTab(this,'proxy')" ondblclick="navigateTab(this,'proxy')">Proxy</div>
+        <div class="main-tab" onclick="setTab(this,'intruder')" ondblclick="navigateTab(this,'intruder')">Intruder</div>
+        <div class="main-tab" onclick="setTab(this,'repeater')" ondblclick="navigateTab(this,'repeater')">Repeater</div>
+        <div class="main-tab tab-collaborator" onclick="showPopup('collaborator')" ondblclick="navigateTab(this,'collaborator')">Collaborator</div>
+        <div class="main-tab" onclick="setTab(this,'sequencer')" ondblclick="navigateTab(this,'sequencer')">Sequencer</div>
+        <div class="main-tab" onclick="setTab(this,'decoder')" ondblclick="navigateTab(this,'decoder')">Decoder</div>
+        <div class="main-tab" onclick="setTab(this,'comparer')" ondblclick="navigateTab(this,'comparer')">Comparer</div>
+        <div class="main-tab" onclick="setTab(this,'logger')" ondblclick="navigateTab(this,'logger')">Logger</div>
+        <div class="main-tab" onclick="setTab(this,'organizer')" ondblclick="navigateTab(this,'organizer')">Organizer</div>
+        <div class="main-tab" onclick="setTab(this,'extensions')" ondblclick="navigateTab(this,'extensions')">Extensions</div>
+        <div class="main-tab" onclick="setTab(this,'learn')" ondblclick="navigateTab(this,'learn')">Learn</div>
+        <div class="tab-extras">
+            <button class="tab-icon-btn" title="Search" onclick="showPopup('search')">🔍</button>
+            <button class="tab-icon-btn" title="Settings" onclick="showPopup('settings')">⚙</button>
+            <button class="tab-icon-btn" title="Notifications" onclick="showPopup('notifications')">🔔</button>
+        </div>
+    </div>
+
+    <!-- App Body - rendered by JS -->
+    <div class="app-body" id="appBody"></div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <div class="status-left">
+            <button class="status-link" onclick="showPopup('eventlog')">Event log</button>
+            <div class="status-issues">
+                All issues (38)
+                <span style="color:#c0392b; font-size:9px">●</span>
+            </div>
+        </div>
+        <div class="status-right">
+            <div class="status-mem">
+                <span style="font-size:10px; color:#666">ℹ</span>
+                Memory: 184.0MB of 1.91GB
+                <div class="mem-bar"><div class="mem-fill"></div></div>
+            </div>
+            <div class="status-icons">
+                <button class="status-icon-btn" onclick="showPopup('memdetails')">📊</button>
+                <button class="status-icon-btn" onclick="showPopup('layout')">⊡</button>
+                <button class="status-icon-btn" onclick="showPopup('detach')">⬜</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup -->
+    <div class="popup-overlay" id="popupOverlay" onclick="closePopup()"></div>
+    <div class="popup-box" id="popupBox" style="display:none">
+        <div class="popup-hdr">
+            <span class="popup-hdr-title" id="popupTitle"></span>
+            <button class="popup-close" onclick="closePopup()">×</button>
+        </div>
+        <div class="popup-body" id="popupBody"></div>
+    </div>
+
+<script>
+    // ---- Vulnerability Data ----
+    const vulns = [
+        { sev: 'info', name: 'Strict transport security not enforced', host: 'https://safebrowsing.go...', time: '07:28:29 15 Feb 2026' },
+        { sev: 'info', name: 'Strict transport security not enforced', host: 'https://firefox-settings-...', time: '07:28:29 15 Feb 2026' },
+        { sev: 'info', name: 'Strict transport security not enforced', host: 'https://firefox-settings-...', time: '07:28:29 15 Feb 2026' },
+        { sev: 'info', name: 'Strict transport security not enforced', host: 'https://firefox-settings-...', time: '07:28:29 15 Feb 2026' },
+        { sev: 'info', name: 'Strict transport security not enforced', host: 'https://firefox-settings-...', time: '07:28:29 15 Feb 2026' },
+        { sev: 'info', name: 'Strict transport security not enforced', host: 'https://firefox-settings-...', time: '07:28:30 15 Feb 2026' },
+        { sev: 'info', name: 'Strict transport security not enforced', host: 'https://content-signatu...', time: '07:28:30 15 Feb 2026' },
+        { sev: 'info', name: 'Strict transport security not enforced', host: 'https://push.services.m...', time: '07:28:33 15 Feb 2026' },
+        { sev: 'info', name: 'Strict transport security not enforced', host: 'https://content-signatu...', time: '07:28:34 15 Feb 2026' },
+        { sev: 'info', name: 'Strict transport security not enforced', host: 'https://normandy.cdn....', time: '07:28:34 15 Feb 2026' },
+        { sev: 'info', name: 'Strict transport security not enforced', host: 'https://content-signatu...', time: '07:28:55 15 Feb 2026' },
+        { sev: 'info', name: 'Strict transport security not enforced', host: 'https://content-signatu...', time: '07:48:49 15 Feb 2026' },
+        { sev: 'info', name: 'Strict transport security not enforced', host: 'https://firefox-settings-...', time: '07:48:51 15 Feb 2026' },
+        { sev: 'info', name: 'Unencrypted communications', host: 'http://detectportal.firef...', time: '07:28:29 15 Feb 2026' },
+        { sev: 'info', name: 'Browser cross-site scripting filter disabled', host: 'https://safebrowsing.go...', time: '07:28:29 15 Feb 2026' },
+        { sev: 'info', name: 'Browser cross-site scripting filter disabled', host: 'https://services.addons...', time: '07:28:55 15 Feb 2026' },
+        { sev: 'info', name: 'Cacheable HTTPS response', host: 'https://ads.mozilla.org', time: '07:28:27 15 Feb 2026' },
+        { sev: 'info', name: 'Cacheable HTTPS response', host: 'https://safebrowsing.go...', time: '07:28:27 15 Feb 2026' },
+        { sev: 'info', name: 'Cacheable HTTPS response', host: 'https://firefox-settings-...', time: '07:28:28 15 Feb 2026' },
+        { sev: 'info', name: 'Cacheable HTTPS response', host: 'https://content-signatu...', time: '07:28:29 15 Feb 2026' },
+        { sev: 'info', name: 'Cacheable HTTPS response', host: 'https://content-signatu...', time: '07:28:30 15 Feb 2026' },
+        { sev: 'info', name: 'Cacheable HTTPS response', host: 'https://firefox.settings...', time: '07:28:34 15 Feb 2026' },
+        { sev: 'info', name: 'Cacheable HTTPS response', host: 'https://firefox.settings...', time: '07:28:34 15 Feb 2026' },
+        { sev: 'info', name: 'Cacheable HTTPS response', host: 'https://firefox.settings...', time: '07:28:35 15 Feb 2026' },
+        { sev: 'info', name: 'Cacheable HTTPS response', host: 'https://firefox.settings...', time: '07:28:35 15 Feb 2026' },
+        { sev: 'info', name: 'Cacheable HTTPS response', host: 'https://firefox.settings...', time: '07:28:54 15 Feb 2026' },
+        { sev: 'info', name: 'Cacheable HTTPS response', host: 'https://normandy.cdn....', time: '07:28:55 15 Feb 2026' },
+        { sev: 'info', name: 'Cacheable HTTPS response', host: 'https://services.addons...', time: '07:28:55 15 Feb 2026' },
+    ];
+
+    function getSevIcon(sev) {
+        const map = {
+            high: `<span class="severity-icon sev-high">!</span>`,
+            medium: `<span class="severity-icon sev-medium">!</span>`,
+            low: `<span class="severity-icon sev-low">i</span>`,
+            info: `<span class="severity-icon sev-info">i</span>`,
+        };
+        return map[sev] || map.info;
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('vulnTableBody');
+        tbody.innerHTML = vulns.map(v => `
+            <tr onclick="showPopup('vuln')">
+                <td><span class="issue-name">${getSevIcon(v.sev)}${v.name}</span></td>
+                <td><span class="host-name">${v.host}</span></td>
+                <td><span class="time-val">${v.time}</span></td>
+            </tr>
+        `).join('');
+    }
+
+    // ---- Task Log ----
+    const logLines = [
+        "> Auditing *https://firefox-settings-attachments.cdn.mozilla.net/security-state-staging/cert-revocations/4330d998-0192-4efd-a5c5-01d22cf98045.delta* for Private Key Disclosure",
+        "> Auditing *https://firefox-settings-attachments.cdn.mozilla.net/security-state-staging/cert-revocations/4330d998-0192-4efd-a5c5-01d22cf98045.delta* for Credit Card Number Leakage",
+        "> Auditing *https://firefox-settings-attachments.cdn.mozilla.net/security-state-staging/cert-revocations/4330d998-0192-4efd-a5c5-01d22cf98045.delta* for Social Security Number Leakage",
+        "> Auditing *https://firefox-settings-attachments.cdn.mozilla.net/security-state-staging/cert-revocations/4330d998-0192-4efd-a5c5-01d22cf98045.delta* for IP Address Disclosure",
+        "> Auditing *https://firefox-settings-attachments.cdn.mozilla.net/security-state-staging/cert-revocations/4330d998-0192-4efd-a5c5-01d22cf98045.delta* for Email Address Leakage",
+        "> Auditing *https://firefox-settings-attachments.cdn.mozilla.net/security-state-staging/cert-revocations/4330d998-0192-4efd-a5c5-01d22cf98045.delta* for Directory Listing Leakage",
+        "> Auditing *https://firefox-settings-attachments.cdn.mozilla.net/security-state-staging/cert-revocations/4330d998-0192-4efd-a5c5-01d22cf98045.delta* for Source Code Disclosure",
+        "> Auditing *https://firefox-settings-attachments.cdn.mozilla.net/security-state-staging/cert-revocations/4330d998-0192-4efd-a5c5-01d22cf98045.delta* for Database Connection String Leakage",
+        "> Auditing *https://firefox-settings-attachments.cdn.mozilla.net/security-state-staging/cert-revocations/4330d998-0192-4efd-a5c5-01d22cf98045.delta* for Info Leakage",
+        "> Auditing *https://firefox-settings-attachments.cdn.mozilla.net/security-state-staging/cert-revocations/4330d998-0192-4efd-a5c5-01d22cf98045.delta* for Content Security Policy",
+    ];
+
+    function renderLog() {
+        const el = document.getElementById('taskLog');
+        el.innerHTML = logLines.map((l, i) =>
+            `<div class="log-entry ${i === logLines.length-1 ? 'active-log' : ''}">${l}</div>`
+        ).join('');
+        el.scrollTop = el.scrollHeight;
+    }
+
+    // ---- Tab switching ----
+    // Single click = popup, Double click = navigate
+    let tabClickTimer = null;
+    let tabClickPreventing = false;
+
+    function setTab(el, name) {
+        // single click → popup
+        clearTimeout(tabClickTimer);
+        tabClickTimer = setTimeout(() => {
+            if (!tabClickPreventing) showPopup(name);
+            tabClickPreventing = false;
+        }, 220);
+    }
+
+    function navigateTab(el, name) {
+        clearTimeout(tabClickTimer);
+        tabClickPreventing = true;
+        document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        if (name === 'target') showTargetUI();
+        else if (name === 'dashboard') showDashboardUI();
+        else showPopup(name);
+    }
+
+    /* ===================== DASHBOARD UI ===================== */
+    function showDashboardUI() {
+        document.getElementById('appBody').innerHTML = dashboardHTML;
+        setTimeout(() => { renderTable(); renderLog(); }, 0);
+    }
+
+    /* ===================== TARGET UI ===================== */
+    function showTargetUI() {
+        document.getElementById('appBody').innerHTML = targetHTML;
+        bindTargetEvents();
+    }
+
+    const targetHTML = `
+    <!-- TARGET: Left tree -->
+    <div class="tgt-sidebar">
+        <div class="tgt-sub-tabs">
+            <div class="tgt-stab active" id="stab-sitemap" onclick="switchSubTab('sitemap')">Site map</div>
+            <div class="tgt-stab" id="stab-scope" onclick="switchSubTab('scope')">Scope</div>
+            <div class="tgt-stab" id="stab-issues" onclick="switchSubTab('issues')">Issues</div>
+        </div>
+        <div class="tgt-toolbar">
+            <button class="tgt-view-btn active" id="btn-urlview" onclick="setMapView('url')">URL view</button>
+            <button class="tgt-view-btn" id="btn-crawlview" onclick="setMapView('crawl')">Crawl paths view</button>
+            <div class="tgt-filter-bar">
+                <span style="color:#888;font-size:10px">▼</span>
+                <span style="font-size:10px;color:#777;flex:1">Site map filter: Hiding not found items; hiding CSS, image and general binary content; hiding 4xx responses; hiding empty folders</span>
+                <button class="tgt-icon-btn" onclick="showPopup('sitemapfilter')">?</button>
+                <button class="tgt-icon-btn" onclick="showPopup('pausecrawl')">⏸</button>
+                <button class="tgt-icon-btn" onclick="showPopup('sitemapsettings')">⚙</button>
+            </div>
+        </div>
+        <div class="tgt-tree" id="tgtTree">
+            <div class="tree-node" onclick="selectTreeNode(this,'detectportal.firefox.com')">
+                <span class="tree-expand">▶</span>
+                <span class="tree-lock"></span>
+                <span class="tree-domain">detectportal.firefox.com</span>
+            </div>
+            <div class="tree-node" onclick="selectTreeNode(this,'classify-client.services.mozilla.com')">
+                <span class="tree-expand">▶</span>
+                <span class="tree-lock">🔒</span>
+                <span class="tree-domain">classify-client.services.mozilla.com</span>
+            </div>
+            <div class="tree-node selected" id="treenode-firefox" onclick="selectTreeNode(this,'firefox.settings.services.mozilla.com')">
+                <span class="tree-expand">▼</span>
+                <span class="tree-lock">🔒</span>
+                <span class="tree-domain highlighted-domain">firefox.settings.services.mozilla.com</span>
+            </div>
+            <div class="tree-children" id="children-firefox">
+                <div class="tree-child" onclick="showPopup('treechild')"><span class="tree-lock-sm">🔒</span> /v1/</div>
+            </div>
+            <div class="tree-node" onclick="selectTreeNode(this,'push.services.mozilla.com')">
+                <span class="tree-expand">▶</span>
+                <span class="tree-lock">🔒</span>
+                <span class="tree-domain">push.services.mozilla.com</span>
+            </div>
+            <div class="tree-node" onclick="selectTreeNode(this,'content-signature-2.cdn.mozilla.net')">
+                <span class="tree-expand">▶</span>
+                <span class="tree-lock">🔒</span>
+                <span class="tree-domain">content-signature-2.cdn.mozilla.net</span>
+            </div>
+            <div class="tree-node" onclick="selectTreeNode(this,'firefox-settings-attachments.cdn.mozilla.net')">
+                <span class="tree-expand">▶</span>
+                <span class="tree-lock">🔒</span>
+                <span class="tree-domain">firefox-settings-attachments.cdn.mozilla.net</span>
+            </div>
+            <div class="tree-node" onclick="selectTreeNode(this,'normandy.cdn.mozilla.net')">
+                <span class="tree-expand">▶</span>
+                <span class="tree-lock">🔒</span>
+                <span class="tree-domain">normandy.cdn.mozilla.net</span>
+            </div>
+            <div class="tree-node" onclick="selectTreeNode(this,'ads.mozilla.org')">
+                <span class="tree-expand">▶</span>
+                <span class="tree-lock">🔒</span>
+                <span class="tree-domain">ads.mozilla.org</span>
+            </div>
+            <div class="tree-node" onclick="selectTreeNode(this,'aus5.mozilla.org')">
+                <span class="tree-expand">▶</span>
+                <span class="tree-lock">🔒</span>
+                <span class="tree-domain">aus5.mozilla.org</span>
+            </div>
+            <div class="tree-node" onclick="selectTreeNode(this,'services.addons.mozilla.org')">
+                <span class="tree-expand">▶</span>
+                <span class="tree-lock">🔒</span>
+                <span class="tree-domain">services.addons.mozilla.org</span>
+            </div>
+            <div class="tree-node" onclick="selectTreeNode(this,'safebrowsing.googleapis.com')">
+                <span class="tree-expand">▶</span>
+                <span class="tree-lock">🔒</span>
+                <span class="tree-domain">safebrowsing.googleapis.com</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- TARGET: Right panel with request table + request/response + inspector -->
+    <div class="tgt-main">
+        <!-- Top: URL table -->
+        <div class="tgt-url-panel" id="tgtUrlPanel">
+            <div class="tgt-url-tabs">
+                <div class="tgt-utab active">Contents</div>
+                <div class="tgt-utab" onclick="showPopup('targetissues')">Issues (11)</div>
+                <div style="flex:1"></div>
+                <div class="tgt-search-wrap">
+                    <input class="tgt-search" type="text" placeholder="Search">
+                    <button class="tgt-search-btn">🔍</button>
+                </div>
+            </div>
+            <div style="flex:1;overflow-y:auto;overflow-x:auto;">
+            <table class="tgt-table" id="tgtTable">
+                <thead>
+                    <tr>
+                        <th style="width:260px">Host</th>
+                        <th style="width:55px">Method</th>
+                        <th>URL</th>
+                        <th style="width:60px">Params</th>
+                        <th style="width:90px">Status code</th>
+                        <th style="width:65px">Length</th>
+                        <th style="width:80px">MIME type</th>
+                        <th style="width:120px">Title</th>
+                        <th style="width:60px">Notes</th>
+                        <th style="width:140px">Time requested</th>
+                    </tr>
+                </thead>
+                <tbody id="tgtTableBody"></tbody>
+            </table>
+            </div>
+        </div>
+
+        <!-- Bottom split: Request | Response | Inspector -->
+        <div class="tgt-bottom">
+            <!-- Request -->
+            <div class="tgt-req-panel">
+                <div class="tgt-panel-header">
+                    <span class="tgt-panel-title">Request</span>
+                    <div class="tgt-format-tabs">
+                        <span class="tgt-ftab active">Pretty</span>
+                        <span class="tgt-ftab">Raw</span>
+                        <span class="tgt-ftab">Hex</span>
+                    </div>
+                    <div style="flex:1"></div>
+                    <div class="tgt-panel-icons">
+                        <button class="tgt-picon" onclick="showPopup('reqsend')">✉</button>
+                        <button class="tgt-picon" onclick="showPopup('reqnotes')">📋</button>
+                        <button class="tgt-picon" onclick="showPopup('reqwrap')">↵</button>
+                        <button class="tgt-picon" onclick="showPopup('reqmore')">⋯</button>
+                    </div>
+                </div>
+                <div class="tgt-code-body" id="reqCode"></div>
+                <div class="tgt-panel-footer">
+                    <button class="tgt-ficon">?</button>
+                    <button class="tgt-ficon">⚙</button>
+                    <button class="tgt-ficon">←</button>
+                    <button class="tgt-ficon">→</button>
+                    <input class="tgt-search-inline" type="text" placeholder="Search">
+                    <button class="tgt-ficon">🔍</button>
+                    <span class="tgt-highlight-count">0 highlights</span>
+                </div>
+            </div>
+
+            <!-- Response -->
+            <div class="tgt-res-panel">
+                <div class="tgt-panel-header">
+                    <span class="tgt-panel-title">Response</span>
+                    <div class="tgt-format-tabs">
+                        <span class="tgt-ftab active">Pretty</span>
+                        <span class="tgt-ftab">Raw</span>
+                        <span class="tgt-ftab">Hex</span>
+                        <span class="tgt-ftab">Render</span>
+                    </div>
+                    <div style="flex:1"></div>
+                    <div class="tgt-panel-icons">
+                        <button class="tgt-picon" onclick="showPopup('resnotes')">📋</button>
+                        <button class="tgt-picon" onclick="showPopup('reswrap')">↵</button>
+                        <button class="tgt-picon" onclick="showPopup('resmore')">⋯</button>
+                    </div>
+                </div>
+                <div class="tgt-code-body" id="resCode"></div>
+                <div class="tgt-panel-footer">
+                    <button class="tgt-ficon">?</button>
+                    <button class="tgt-ficon">⚙</button>
+                    <button class="tgt-ficon">←</button>
+                    <button class="tgt-ficon">→</button>
+                    <input class="tgt-search-inline" type="text" placeholder="Search">
+                    <button class="tgt-ficon">🔍</button>
+                    <span class="tgt-highlight-count">0 highlights</span>
+                </div>
+            </div>
+
+            <!-- Inspector -->
+            <div class="tgt-inspector-panel">
+                <div class="tgt-insp-header">
+                    <span class="tgt-panel-title">Inspector</span>
+                    <div class="tgt-insp-view-btns">
+                        <button class="tgt-picon active-insp" onclick="showPopup('inspattrib')">⊟</button>
+                        <button class="tgt-picon" onclick="showPopup('inspreq')">≡</button>
+                        <button class="tgt-picon" onclick="showPopup('inspres')">—</button>
+                        <button class="tgt-picon" style="color:#c0392b" onclick="showPopup('inspclose')">×</button>
+                    </div>
+                </div>
+                <div class="tgt-insp-body">
+                    <div class="insp-row" onclick="showPopup('reqattrib')">
+                        <span class="insp-label">Request attributes</span>
+                        <span class="insp-count">2</span>
+                        <span class="insp-arrow">▲</span>
+                    </div>
+                    <div class="insp-row" onclick="showPopup('reqheaders')">
+                        <span class="insp-label">Request headers</span>
+                        <span class="insp-count">10</span>
+                        <span class="insp-arrow">▲</span>
+                    </div>
+                    <div class="insp-row" onclick="showPopup('resheaders')">
+                        <span class="insp-label">Response headers</span>
+                        <span class="insp-count">19</span>
+                        <span class="insp-arrow">▲</span>
+                    </div>
+                    <div class="insp-notes-bar" onclick="showPopup('notes')">Notes</div>
+                    <div class="insp-notes-content">No notes</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+
+    const tgtRequests = [
+        { host:'https://firefox.settings.service...', method:'GET', url:'/v1/', params:'', status:200, length:1228, mime:'JSON', title:'', notes:'', time:'07:28:26 15 Feb ...' },
+        { host:'https://firefox.settings.service...', method:'GET', url:'/v1/buckets/blocklists/collectio...', params:'✓', status:200, length:49165, mime:'JSON', title:'', notes:'', time:'07:28:33 15 Feb ...' },
+        { host:'https://firefox.settings.service...', method:'GET', url:'/v1/buckets/blocklists/collectio...', params:'✓', status:200, length:3440, mime:'JSON', title:'', notes:'', time:'07:37:43 15 Feb ...' },
+        { host:'https://firefox.settings.service...', method:'GET', url:'/v1/buckets/main/collections/fx...', params:'✓', status:200, length:3552, mime:'JSON', title:'', notes:'', time:'07:28:35 15 Feb ...' },
+        { host:'https://firefox.settings.service...', method:'GET', url:'/v1/buckets/main/collections/m...', params:'✓', status:200, length:1226, mime:'JSON', title:'', notes:'', time:'07:28:34 15 Feb ...' },
+        { host:'https://firefox.settings.service...', method:'GET', url:'/v1/buckets/main/collections/ni...', params:'✓', status:200, length:39295, mime:'JSON', title:'', notes:'', time:'07:28:34 15 Feb ...' },
+        { host:'https://firefox.settings.service...', method:'GET', url:'/v1/buckets/main/collections/ni...', params:'✓', status:200, length:7740, mime:'JSON', title:'', notes:'', time:'07:28:35 15 Feb ...' },
+        { host:'https://firefox.settings.service...', method:'GET', url:'/v1/buckets/main/collections/tr...', params:'✓', status:200, length:37435, mime:'JSON', title:'', notes:'', time:'07:28:35 15 Feb ...' },
+        { host:'https://firefox.settings.service...', method:'GET', url:'/v1/buckets/main/collections/ur...', params:'✓', status:200, length:10405, mime:'JSON', title:'', notes:'', time:'07:28:34 15 Feb ...' },
+        { host:'https://firefox.settings.service...', method:'GET', url:'/v1/buckets/monitor/collections...', params:'✓', status:200, length:889, mime:'JSON', title:'', notes:'', time:'07:28:54 15 Feb ...' },
+        { host:'https://firefox.settings.service...', method:'GET', url:'/v1/buckets/monitor/collections...', params:'✓', status:200, length:39178, mime:'JSON', title:'', notes:'', time:'07:28:49 15 Feb ...' },
+    ];
+
+    const reqText = `<span class="ln">1</span>  <span class="http-method">GET</span> /v1/ HTTP/2\n<span class="ln">2</span>  <span class="http-header-name">Host:</span> firefox.settings.services.mozilla.com\n<span class="ln">3</span>  <span class="http-header-name">User-Agent:</span> Mozilla/5.0 (X11; Linux x86_64; rv:140.0)\n<span class="ln"> </span>         Gecko/20100101 Firefox/140.0\n<span class="ln">4</span>  <span class="http-header-name">Accept:</span> */*\n<span class="ln">5</span>  <span class="http-header-name">Accept-Language:</span> en-US,en;q=0.5\n<span class="ln">6</span>  <span class="http-header-name">Accept-Encoding:</span> gzip, deflate, br\n<span class="ln">7</span>  <span class="http-header-name">Te:</span> trailers\n<span class="ln">8</span>  <span class="http-header-name">Connection:</span> keep-alive\n<span class="ln">9</span>\n<span class="ln">10</span>`;
+
+    const resText = `<span class="ln">1</span>  <span class="http-status">HTTP/2 200 OK</span>\n<span class="ln">2</span>  <span class="http-header-name">Strict-Transport-Security:</span> max-age=31536000\n<span class="ln">3</span>  <span class="http-header-name">Cache-Control:</span> max-age=3600\n<span class="ln">4</span>  <span class="http-header-name">Expires:</span> Sun, 15 Feb 2026 02:26:57 GMT\n<span class="ln">5</span>  <span class="http-header-name">Access-Control-Expose-Headers:</span> Retry-After, Backoff,\n<span class="ln"> </span>         Content-Type, Content-Length, Alert\n<span class="ln">6</span>  <span class="http-header-name">Via:</span> 1.1 google, 1.1 varnish, 1.1 varnish, 1.1 varnish\n<span class="ln">7</span>  <span class="http-header-name">Content-Security-Policy:</span> default-src 'none'; frame-ancestors\n<span class="ln"> </span>         'none'; base-uri 'none';\n<span class="ln">8</span>  <span class="http-header-name">Access-Control-Allow-Origin:</span> *\n<span class="ln">9</span>  <span class="http-header-name">Server:</span> nginx\n<span class="ln">10</span> <span class="http-header-name">Content-Type:</span> application/json\n<span class="ln">11</span> <span class="http-header-name">X-Content-Type-Options:</span> nosniff\n<span class="ln">12</span> <span class="http-header-name">Accept-Ranges:</span> bytes\n<span class="ln">13</span> <span class="http-header-name">Date:</span> Sun, 15 Feb 2026 01:28:26 GMT\n<span class="ln">14</span> <span class="http-header-name">Age:</span> 88\n<span class="ln">15</span> <span class="http-header-name">X-Served-By:</span> cache-bfi-kbfi7400031-BFI,\n<span class="ln"> </span>         cache-bfi-kbfi7400095-BFI, cache-sin-wsss1830085-SIN\n<span class="ln">16</span> <span class="http-header-name">X-Cache:</span> MISS, HIT, HIT\n<span class="ln">17</span> <span class="http-header-name">X-Cache-Hits:</span> 0, 32, 60\n<span class="ln">18</span> <span class="http-header-name">X-Timer:</span> S1771118906.250684,VSO,VEO\n<span class="ln">19</span> <span class="http-header-name">Vary:</span> Accept-Encoding\n<span class="ln">20</span> <span class="http-header-name">Content-Length:</span> 1228\n<span class="ln">21</span>\n<span class="ln">22</span> <span class="json-brace">{</span>\n<span class="ln">23</span>   <span class="json-key">"project_name"</span>:<span class="json-str">"Remote Settings PROD"</span>,\n<span class="ln">24</span>   <span class="json-key">"project_version"</span>:<span class="json-str">"24.1.0"</span>,\n<span class="ln">25</span>   <span class="json-key">"http_api_version"</span>:<span class="json-str">"1.23"</span>,\n<span class="ln">26</span>   <span class="json-key">"project_docs"</span>:<span class="json-str">"https://remote-settings.readthedocs.io"</span>,\n<span class="ln">27</span>   <span class="json-key">"url"</span>:<span class="json-str">"https://firefox.settings.services.mozilla.com/v1/"</span>,`;
+
+    function bindTargetEvents() {
+        renderTgtTable();
+        document.getElementById('reqCode').innerHTML = reqText;
+        document.getElementById('resCode').innerHTML = resText;
+        // select first row by default
+        const rows = document.querySelectorAll('#tgtTableBody tr');
+        if (rows[0]) rows[0].classList.add('tgt-row-selected');
+    }
+
+    function renderTgtTable() {
+        const tbody = document.getElementById('tgtTableBody');
+        tbody.innerHTML = tgtRequests.map((r, i) => `
+            <tr class="${i===0?'tgt-row-selected':''}" onclick="selectTgtRow(this, ${i})">
+                <td class="tgt-host-cell">${r.host}</td>
+                <td class="tgt-method">${r.method}</td>
+                <td class="tgt-url-cell">${r.url}</td>
+                <td style="text-align:center;color:#4CAF50">${r.params}</td>
+                <td style="text-align:center">${r.status}</td>
+                <td style="text-align:right;padding-right:14px">${r.length}</td>
+                <td>${r.mime}</td>
+                <td>${r.title}</td>
+                <td>${r.notes}</td>
+                <td class="tgt-time">${r.time}</td>
+            </tr>
+        `).join('');
+    }
+
+    function selectTgtRow(el, idx) {
+        document.querySelectorAll('#tgtTableBody tr').forEach(r => r.classList.remove('tgt-row-selected'));
+        el.classList.add('tgt-row-selected');
+    }
+
+    function selectTreeNode(el, domain) {
+        document.querySelectorAll('.tree-node').forEach(n => n.classList.remove('selected'));
+        el.classList.add('selected');
+    }
+
+    function switchSubTab(name) {
+        document.querySelectorAll('.tgt-stab').forEach(t => t.classList.remove('active'));
+        document.getElementById('stab-' + name)?.classList.add('active');
+        if (name === 'scope') showScopePanel();
+        else if (name === 'issues') showIssuesPanel();
+        else showSiteMapPanel();
+    }
+
+    /* ---- Scope Panel ---- */
+    const scopeIncludeRows = [];
+    const scopeExcludeRows = [];
+
+    function showScopePanel() {
+        // Replace entire appBody content keeping the sub-tabs visible
+        const appBody = document.getElementById('appBody');
+        appBody.innerHTML = `
+        <div style="display:flex;flex-direction:column;flex:1;min-width:0;overflow:hidden;">
+            <div class="tgt-sub-tabs" style="flex-shrink:0">
+                <div class="tgt-stab" id="stab-sitemap" onclick="switchSubTab('sitemap')">Site map</div>
+                <div class="tgt-stab active" id="stab-scope" onclick="switchSubTab('scope')">Scope</div>
+                <div class="tgt-stab" id="stab-issues" onclick="switchSubTab('issues')">Issues</div>
+            </div>
+            <div style="flex:1;overflow-y:auto;background:#f0f0f0;">
+                ${scopeBodyHTML()}
+            </div>
+        </div>`;
+    }
+
+    function scopeBodyHTML() {
+        return `
+        <div class="scope-wrap">
+            <div class="scope-header-row">
+                <span class="scope-info-icon">ℹ</span>
+                <div class="scope-title">Target scope</div>
+            </div>
+            <div class="scope-desc-row">
+                <span class="scope-gear-icon">⚙</span>
+                <span class="scope-desc">Use these settings to define exactly what hosts and URLs constitute the target for your current work. This configuration affects the behavior of tools throughout the suite.</span>
+            </div>
+            <div class="scope-checkbox-row">
+                <input type="checkbox" id="advancedScope" onchange="toggleAdvanced(this)">
+                <label for="advancedScope" class="scope-checkbox-label">Use advanced scope control</label>
+            </div>
+
+            <div class="scope-section-label">Include in scope</div>
+            <div class="scope-table-wrap">
+                <div class="scope-btn-col">
+                    <button class="scope-btn" onclick="addScopeRow('include')">Add</button>
+                    <button class="scope-btn" onclick="editScopeRow('include')">Edit</button>
+                    <button class="scope-btn" onclick="removeScopeRow('include')">Remove</button>
+                    <button class="scope-btn" onclick="pasteURL('include')">Paste URL</button>
+                    <button class="scope-btn" onclick="loadScope('include')">Load ...</button>
+                </div>
+                <div class="scope-table-area">
+                    <table class="scope-table">
+                        <thead><tr>
+                            <th style="width:70px">Enabled</th>
+                            <th>Prefix</th>
+                            <th style="width:160px">Include subdomains</th>
+                        </tr></thead>
+                        <tbody id="includeTbody">${renderScopeRows(scopeIncludeRows)}</tbody>
+                    </table>
+                    <div class="scope-resize-handle">▶</div>
+                </div>
+            </div>
+
+            <div class="scope-section-label" style="margin-top:20px">Exclude from scope</div>
+            <div class="scope-table-wrap">
+                <div class="scope-btn-col">
+                    <button class="scope-btn" onclick="addScopeRow('exclude')">Add</button>
+                    <button class="scope-btn" onclick="editScopeRow('exclude')">Edit</button>
+                    <button class="scope-btn" onclick="removeScopeRow('exclude')">Remove</button>
+                    <button class="scope-btn" onclick="pasteURL('exclude')">Paste URL</button>
+                    <button class="scope-btn" onclick="loadScope('exclude')">Load ...</button>
+                </div>
+                <div class="scope-table-area">
+                    <table class="scope-table">
+                        <thead><tr>
+                            <th style="width:70px">Enabled</th>
+                            <th>Prefix</th>
+                            <th style="width:160px">Include subdomains</th>
+                        </tr></thead>
+                        <tbody id="excludeTbody">${renderScopeRows(scopeExcludeRows)}</tbody>
+                    </table>
+                    <div class="scope-resize-handle">▶</div>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    function renderScopeRows(rows) {
+        if (rows.length === 0) return '';
+        return rows.map((r, i) => `
+            <tr class="scope-row ${r.selected ? 'scope-row-selected' : ''}" onclick="selectScopeRow(this,'${r.type}',${i})">
+                <td style="text-align:center">
+                    <input type="checkbox" ${r.enabled ? 'checked' : ''} onclick="toggleScopeEnabled(event,'${r.type}',${i})">
+                </td>
+                <td class="scope-prefix-cell">${r.prefix}</td>
+                <td style="text-align:center">${r.subdomains ? '✓' : ''}</td>
+            </tr>
+        `).join('');
+    }
+
+    function addScopeRow(type) {
+        showAddScopeDialog(type);
+    }
+
+    function editScopeRow(type) {
+        const rows = type === 'include' ? scopeIncludeRows : scopeExcludeRows;
+        const sel = rows.find(r => r.selected);
+        if (!sel) { showScopeMsg('সম্পাদনা করতে একটি row সিলেক্ট করুন'); return; }
+        showAddScopeDialog(type, sel);
+    }
+
+    function removeScopeRow(type) {
+        const rows = type === 'include' ? scopeIncludeRows : scopeExcludeRows;
+        const idx = rows.findIndex(r => r.selected);
+        if (idx === -1) { showScopeMsg('মুছতে একটি row সিলেক্ট করুন'); return; }
+        rows.splice(idx, 1);
+        refreshScopeTable(type);
+    }
+
+    function pasteURL(type) {
+        const url = prompt('URL পেস্ট করুন:');
+        if (!url || !url.trim()) return;
+        const rows = type === 'include' ? scopeIncludeRows : scopeExcludeRows;
+        rows.push({ enabled: true, prefix: url.trim(), subdomains: url.includes('*.') || !url.includes('/'), selected: false, type });
+        refreshScopeTable(type);
+    }
+
+    function loadScope(type) { showScopeMsg('ফাইল থেকে scope লোড করুন (demo)'); }
+
+    function toggleAdvanced(cb) {
+        showScopeMsg(cb.checked ? 'Advanced scope control সক্রিয়' : 'Simple scope mode সক্রিয়');
+    }
+
+    function selectScopeRow(el, type, idx) {
+        const rows = type === 'include' ? scopeIncludeRows : scopeExcludeRows;
+        rows.forEach(r => r.selected = false);
+        rows[idx].selected = true;
+        refreshScopeTable(type);
+    }
+
+    function toggleScopeEnabled(e, type, idx) {
+        e.stopPropagation();
+        const rows = type === 'include' ? scopeIncludeRows : scopeExcludeRows;
+        rows[idx].enabled = !rows[idx].enabled;
+        refreshScopeTable(type);
+    }
+
+    function refreshScopeTable(type) {
+        const tbody = document.getElementById(type === 'include' ? 'includeTbody' : 'excludeTbody');
+        if (!tbody) return;
+        const rows = type === 'include' ? scopeIncludeRows : scopeExcludeRows;
+        tbody.innerHTML = renderScopeRows(rows);
+    }
+
+    function showScopeMsg(msg) {
+        const d = document.createElement('div');
+        d.style.cssText = 'position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#3a7bd5;color:white;padding:8px 18px;border-radius:4px;font-size:12px;z-index:9999;animation:fadeOut 2.5s forwards';
+        d.textContent = msg;
+        document.body.appendChild(d);
+        setTimeout(() => d.remove(), 2600);
+    }
+
+    /* Add Scope Dialog */
+    function showAddScopeDialog(type, existing) {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:2000;display:flex;align-items:center;justify-content:center';
+        overlay.innerHTML = `
+        <div style="background:#3c3f41;border:1px solid #666;border-radius:6px;width:480px;box-shadow:0 8px 32px rgba(0,0,0,0.5)">
+            <div style="background:#444;padding:10px 14px;border-bottom:1px solid #555;border-radius:6px 6px 0 0;display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:13px;font-weight:600;color:#ddd">${type === 'include' ? '➕ Add to Scope' : '🚫 Exclude from Scope'}</span>
+                <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer">×</button>
+            </div>
+            <div style="padding:20px">
+                <div style="margin-bottom:14px">
+                    <label style="font-size:11px;color:#888;display:block;margin-bottom:5px">Protocol:</label>
+                    <select id="dlg-protocol" style="width:100%;background:#2b2b2b;border:1px solid #555;color:#ccc;padding:5px 8px;border-radius:3px;font-size:12px;font-family:inherit">
+                        <option value="Any">Any</option>
+                        <option value="http">http</option>
+                        <option value="https" selected>https</option>
+                    </select>
+                </div>
+                <div style="margin-bottom:14px">
+                    <label style="font-size:11px;color:#888;display:block;margin-bottom:5px">Host or IP range:</label>
+                    <input id="dlg-host" type="text" value="${existing?.prefix?.replace(/https?:\/\//,'').split('/')[0] || ''}" placeholder="e.g. example.com or 192.168.1.*" style="width:100%;background:#2b2b2b;border:1px solid #555;color:#ccc;padding:5px 8px;border-radius:3px;font-size:12px;font-family:'JetBrains Mono',monospace;box-sizing:border-box">
+                </div>
+                <div style="margin-bottom:14px">
+                    <label style="font-size:11px;color:#888;display:block;margin-bottom:5px">Port:</label>
+                    <input id="dlg-port" type="text" value="" placeholder="e.g. 443 (leave blank for any)" style="width:100%;background:#2b2b2b;border:1px solid #555;color:#ccc;padding:5px 8px;border-radius:3px;font-size:12px;font-family:inherit;box-sizing:border-box">
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="font-size:11px;color:#888;display:block;margin-bottom:5px">File:</label>
+                    <input id="dlg-file" type="text" value="" placeholder="e.g. /admin/ (leave blank for any)" style="width:100%;background:#2b2b2b;border:1px solid #555;color:#ccc;padding:5px 8px;border-radius:3px;font-size:12px;font-family:inherit;box-sizing:border-box">
+                </div>
+                <div style="margin-bottom:16px;display:flex;align-items:center;gap:8px">
+                    <input type="checkbox" id="dlg-subdomains" ${existing?.subdomains ? 'checked' : ''}>
+                    <label for="dlg-subdomains" style="font-size:12px;color:#ccc">Include subdomains</label>
+                </div>
+                <div style="display:flex;justify-content:flex-end;gap:8px;padding-top:10px;border-top:1px solid #444">
+                    <button onclick="this.closest('[style*=fixed]').remove()" style="padding:5px 16px;background:#555;border:none;color:#ccc;border-radius:3px;cursor:pointer;font-size:12px;font-family:inherit">Cancel</button>
+                    <button onclick="confirmAddScope('${type}',this)" style="padding:5px 16px;background:#3a7bd5;border:none;color:white;border-radius:3px;cursor:pointer;font-size:12px;font-family:inherit">OK</button>
+                </div>
+            </div>
+        </div>`;
+        document.body.appendChild(overlay);
+        document.getElementById('dlg-host').focus();
+    }
+
+    function confirmAddScope(type, btn) {
+        const overlay = btn.closest('[style*=fixed]');
+        const proto = document.getElementById('dlg-protocol').value;
+        const host = document.getElementById('dlg-host').value.trim();
+        const port = document.getElementById('dlg-port').value.trim();
+        const file = document.getElementById('dlg-file').value.trim();
+        const sub = document.getElementById('dlg-subdomains').checked;
+        if (!host) { document.getElementById('dlg-host').style.borderColor = '#c0392b'; return; }
+        let prefix = proto === 'Any' ? host : `${proto}://${host}`;
+        if (port) prefix += `:${port}`;
+        if (file) prefix += file.startsWith('/') ? file : '/' + file;
+        const rows = type === 'include' ? scopeIncludeRows : scopeExcludeRows;
+        rows.push({ enabled: true, prefix, subdomains: sub, selected: false, type });
+        overlay.remove();
+        refreshScopeTable(type);
+        showScopeMsg(`✓ ${prefix} scope এ যোগ হয়েছে`);
+    }
+
+    /* ---- Issues Panel ---- */
+    function showIssuesPanel() {
+        const appBody = document.getElementById('appBody');
+        appBody.innerHTML = `
+        <div style="display:flex;flex-direction:column;flex:1;min-width:0;overflow:hidden;">
+            <div class="tgt-sub-tabs" style="flex-shrink:0">
+                <div class="tgt-stab" id="stab-sitemap" onclick="switchSubTab('sitemap')">Site map</div>
+                <div class="tgt-stab" id="stab-scope" onclick="switchSubTab('scope')">Scope</div>
+                <div class="tgt-stab active" id="stab-issues" onclick="switchSubTab('issues')">Issues</div>
+            </div>
+            <div style="flex:1;overflow-y:auto;background:#f0f0f0;padding:24px;">
+                <p style="color:#555;font-size:13px">Issues tab — এখানে সব vulnerability তালিকা দেখা যাবে।</p>
+            </div>
+        </div>`;
+    }
+
+    /* ---- Site Map Panel ---- */
+    function showSiteMapPanel() {
+        showTargetUI();
+    }
+
+    function setMapView(v) {
+        document.getElementById('btn-urlview').classList.toggle('active', v==='url');
+        document.getElementById('btn-crawlview').classList.toggle('active', v==='crawl');
+    }
+
+    function switchCtab(el) {
+        document.querySelectorAll('.ctab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    // ---- Popups ----
+    const popups = {
+        liveaudit: {
+            title: "⚡ Live Audit from Proxy",
+            body: `<p>Live Audit প্রক্সি দিয়ে যাওয়া সব ট্রাফিক রিয়েল-টাইমে স্ক্যান করে। আপনি যখন সাইট ব্রাউজ করছেন, তখনই background-এ ভালনারেবিলিটি খুঁজে বের করে।</p>
+            <ul>
+                <li><strong>Passive Audit:</strong> শুধু দেখে চেক করে (নিরাপদ)</li>
+                <li><strong>Light Active:</strong> কিছু টেস্ট রিকোয়েস্ট পাঠায়</li>
+                <li><strong>Full Active:</strong> পূর্ণ ভালনারেবিলিটি টেস্টিং</li>
+            </ul>
+            <div class="popup-hl">💡 Passive mode সবসময় চালু রাখুন — performance impact নেই।</div>`
+        },
+        livecrawl: {
+            title: "🕷 Live Passive Crawl",
+            body: `<p>Passive Crawl প্রক্সি দিয়ে যাওয়া ট্রাফিক থেকে অটোমেটিক্যালি লিঙ্ক ও এন্ডপয়েন্ট সংগ্রহ করে সাইট ম্যাপ তৈরি করে।</p>
+            <ul>
+                <li><strong>Add links:</strong> HTML/JS থেকে লিঙ্ক সংগ্রহ</li>
+                <li><strong>Add item itself:</strong> রিকোয়েস্ট নিজেই যুক্ত করে</li>
+                <li><strong>Same domain:</strong> একই ডোমেইন ফিল্টার</li>
+            </ul>
+            <div class="popup-hl">🌐 Passive = কোন নতুন রিকোয়েস্ট পাঠায় না।</div>`
+        },
+        newscan: {
+            title: "🆕 New Scan",
+            body: `<p>নতুন স্ক্যান শুরু করুন।</p>
+            <div class="popup-steps"><ol>
+                <li>URL এন্টার করুন</li>
+                <li>Crawl / Crawl and Audit / Audit selected items বেছে নিন</li>
+                <li>Configuration সেট করুন</li>
+                <li>OK ক্লিক করুন</li>
+            </ol></div>`
+        },
+        taskconfig: {
+            title: "⚙ Task Configuration",
+            body: `<ul>
+                <li><strong>Audit Checks:</strong> কোন ভালনারেবিলিটি চেক করবে</li>
+                <li><strong>Resource Pool:</strong> স্পিড ও থ্রেড কন্ট্রোল</li>
+                <li><strong>Crawl Settings:</strong> সাইট explore করার পদ্ধতি</li>
+                <li><strong>Scope:</strong> টার্গেট সীমানা নির্ধারণ</li>
+            </ul>`
+        },
+        vuln: {
+            title: "⚠ Vulnerability Details",
+            body: `<p><strong>Strict Transport Security Not Enforced</strong></p>
+            <p>এই হোস্টে HSTS হেডার নেই। ব্রাউজার HTTP ডাউনগ্রেড আক্রমণে ঝুঁকিতে থাকতে পারে।</p>
+            <div class="popup-hl">🔧 Fix: Strict-Transport-Security: max-age=31536000; includeSubDomains</div>`
+        },
+        viewall: {
+            title: "📋 All Issues (38)",
+            body: `<p>মোট <strong>38টি</strong> ইস্যু পাওয়া গেছে:</p>
+            <ul>
+                <li><strong>High:</strong> 0</li>
+                <li><strong>Medium:</strong> 0</li>
+                <li><strong>Low:</strong> 13</li>
+                <li><strong>Info:</strong> 25</li>
+            </ul>
+            <div class="popup-hl">Issues ট্যাবে গিয়ে সব দেখুন ও রিপোর্ট তৈরি করুন।</div>`
+        },
+        target: {
+            title: "🎯 Target — Site Map & Scope",
+            body: `<p>Target ট্যাব আপনার টার্গেট সাইটের সম্পূর্ণ স্ট্রাকচার দেখায়।</p>
+            <ul>
+                <li><strong>Site Map:</strong> ট্রি ভিউতে সব পেজ</li>
+                <li><strong>Scope:</strong> কোন সাইট টেস্ট করবেন তা ডিফাইন করুন</li>
+            </ul>`
+        },
+        proxy: {
+            title: "🔄 Proxy",
+            body: `<p>Proxy ব্রাউজার ও ওয়েবসাইটের মধ্যে সব HTTP ট্রাফিক ইন্টারসেপ্ট করে।</p>
+            <div class="popup-steps"><ol>
+                <li>127.0.0.1:8080 চালু আছে কিনা চেক করুন</li>
+                <li>ব্রাউজারে প্রক্সি সেট করুন</li>
+                <li>http://burpsuite থেকে CA cert ইনস্টল করুন</li>
+            </ol></div>`
+        },
+        intruder: {
+            title: "⚡ Intruder",
+            body: `<p>Intruder অটোমেটিক পেলোড দিয়ে রিকোয়েস্ট টেস্ট করে।</p>
+            <ul>
+                <li><strong>Sniper:</strong> একটি পজিশনে একটি পেলোড</li>
+                <li><strong>Battering Ram:</strong> সব পজিশনে একই পেলোড</li>
+                <li><strong>Pitchfork:</strong> মাল্টিপল পেলোড</li>
+                <li><strong>Cluster Bomb:</strong> সব কম্বিনেশন</li>
+            </ul>`
+        },
+        repeater: {
+            title: "🔁 Repeater",
+            body: `<p>Repeater ম্যানুয়ালি রিকোয়েস্ট পাঠিয়ে দ্রুত টেস্ট করতে দেয়।</p>
+            <div class="popup-steps"><ol>
+                <li>Proxy থেকে "Send to Repeater"</li>
+                <li>রিকোয়েস্ট এডিট করুন</li>
+                <li>Send (Ctrl+Space)</li>
+                <li>রেসপন্স দেখুন</li>
+            </ol></div>`
+        },
+        collaborator: {
+            title: "🌐 Collaborator",
+            body: `<p>Burp Collaborator out-of-band interaction ডিটেক্ট করে — যেমন SSRF, blind XSS, XXE।</p>
+            <div class="popup-hl">💡 Pro license প্রয়োজন। Collaborator সার্ভার ইন্টারনেটে লিসেন করে।</div>`
+        },
+        sequencer: { title: "🎲 Sequencer", body: "<p>টোকেন এবং সেশন আইডির র‍্যান্ডমনেস বিশ্লেষণ করে। কমপক্ষে 100টি টোকেন সংগ্রহ করুন analysis-এর জন্য।</p>" },
+        decoder: { title: "🔓 Decoder", body: "<p>Base64, URL, HTML, Hex, Gzip সহ নানা ফরম্যাট এনকোড/ডিকোড করুন। Smart Decode অটো-ডিটেক্ট করে।</p>" },
+        comparer: { title: "↔ Comparer", body: "<p>দুটি রিকোয়েস্ট বা রেসপন্স compare করুন। Words বা Bytes মোডে পার্থক্য হাইলাইট করে।</p>" },
+        logger: { title: "📋 Logger", body: "<p>সব HTTP/HTTPS ট্রাফিক লগ এখানে রেকর্ড হয়। Filter দিয়ে নির্দিষ্ট রিকোয়েস্ট খুঁজুন।</p>" },
+        organizer: { title: "📁 Organizer", body: "<p>রিকোয়েস্ট ও রেসপন্স অর্গানাইজ করুন। নোট ও ট্যাগ যুক্ত করুন।</p>" },
+        extensions: { title: "🧩 Extensions", body: "<p>Autorize, Turbo Intruder, JWT Editor — BApp Store থেকে ইনস্টল করুন।</p>" },
+        learn: { title: "📚 Learn", body: "<p>Burp Academy, Web Security tutorials, এবং official documentation এখান থেকে পাবেন।</p>" },
+        project: { title: "📁 Project", body: "<p>প্রজেক্ট তৈরি, ওপেন, সেভ এবং ম্যানেজ করুন।</p>" },
+        view: { title: "👁 View", body: "<p>বিভিন্ন প্যানেল এবং উইন্ডো কাস্টমাইজ করুন।</p>" },
+        help: { title: "❓ Help", body: "<p>ডকুমেন্টেশন, টিউটোরিয়াল এবং সাপোর্ট পাবেন।</p>" },
+        rate: { title: "⭐ Rate This Scan", body: "<p>আপনার ফিডব্যাক Burp Suite উন্নত করতে সাহায্য করে। 1–5 স্টার রেটিং দিন।</p>" },
+        eventlog: { title: "📝 Event Log", body: "<p>স্ক্যান প্রক্রিয়ার সব ইভেন্ট এবং সিস্টেম মেসেজ।</p>" },
+        newlivetask: { title: "📡 New Live Task", body: "<p>Live Crawl বা Live Audit টাস্ক তৈরি করুন যা প্রক্সি ট্রাফিক থেকে রিয়েল-টাইমে কাজ করে।</p>" },
+        sitemapfilter: { title: "🔍 Site Map Filter", body: "<p>Site map filter দিয়ে কোন আইটেম দেখা যাবে তা কন্ট্রোল করুন।</p><ul><li>404 not found হাইড করুন</li><li>CSS/image/binary হাইড করুন</li><li>Empty folder হাইড করুন</li></ul>" },
+        pausecrawl: { title: "⏸ Pause Crawl", body: "<p>Live crawl পজ করুন। নতুন আইটেম আর সংগৃহীত হবে না।</p>" },
+        sitemapsettings: { title: "⚙ Site Map Settings", body: "<p>Site map এর display ও filter সেটিংস কনফিগার করুন।</p>" },
+        targetissues: { title: "⚠ Issues (11)", body: "<p>firefox.settings.services.mozilla.com এ পাওয়া 11টি ইস্যু:</p><ul><li>Strict transport security not enforced</li><li>Cacheable HTTPS response</li><li>Browser XSS filter disabled</li></ul>" },
+        targetscope: { title: "🎯 Scope Settings", body: "<p>Scope নির্ধারণ করুন — কোন URL টেস্ট করা হবে।</p><ul><li>Include patterns যোগ করুন</li><li>Exclude patterns যোগ করুন</li><li>Regexp বা glob ব্যবহার করুন</li></ul>" },
+        treechild: { title: "📄 /v1/ Endpoint", body: "<p>GET /v1/ — firefox.settings.services.mozilla.com</p><p>Status: 200 OK | Length: 1228 | MIME: JSON</p><div class='popup-hl'>এই endpoint টি Remote Settings API root। এখানে সব bucket এর list পাওয়া যায়।</div>" },
+        reqattrib: { title: "📋 Request Attributes", body: "<ul><li><strong>Method:</strong> GET</li><li><strong>Protocol:</strong> HTTP/2</li></ul>" },
+        reqheaders: { title: "📋 Request Headers (10)", body: "<ul><li>Host: firefox.settings.services.mozilla.com</li><li>User-Agent: Mozilla/5.0...</li><li>Accept: */*</li><li>Accept-Language: en-US,en;q=0.5</li><li>Accept-Encoding: gzip, deflate, br</li><li>Te: trailers</li><li>Connection: keep-alive</li></ul>" },
+        resheaders: { title: "📋 Response Headers (19)", body: "<ul><li>Strict-Transport-Security: max-age=31536000</li><li>Cache-Control: max-age=3600</li><li>Content-Type: application/json</li><li>Server: nginx</li><li>X-Cache: MISS, HIT, HIT</li><li>Content-Length: 1228</li></ul>" },
+        notes: { title: "📝 Notes", body: "<p>এই request এ কোন notes নেই। Notes যোগ করতে পারেন।</p>" },
+        reqsend: { title: "✉ Send to...", body: "<p>এই request টি পাঠান:</p><ul><li><strong>Send to Repeater</strong> — ম্যানুয়াল টেস্টিং</li><li><strong>Send to Intruder</strong> — অটোমেটেড অ্যাটাক</li><li><strong>Send to Comparer</strong> — তুলনা করুন</li><li><strong>Send to Sequencer</strong> — টোকেন বিশ্লেষণ</li></ul>" },
+    };
+
+    function showPopup(key) {
+        const d = popups[key];
+        if (!d) return;
+        document.getElementById('popupTitle').textContent = d.title;
+        document.getElementById('popupBody').innerHTML = d.body;
+        document.getElementById('popupBox').style.display = 'block';
+        document.getElementById('popupOverlay').classList.add('show');
+    }
+    function closePopup() {
+        document.getElementById('popupBox').style.display = 'none';
+        document.getElementById('popupOverlay').classList.remove('show');
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePopup(); });
+
+    // Init
+    const dashboardHTML = `
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-title">Tasks</span>
+                <div class="sidebar-btns">
+                    <button class="scan-btn orange" onclick="showPopup('newscan')">New scan</button>
+                    <button class="scan-btn blue" onclick="showPopup('newlivetask')">New live task</button>
+                </div>
+            </div>
+            <div class="sidebar-controls">
+                <button class="icon-btn-sm" title="Pause all" onclick="showPopup('pauseall')">⏸</button>
+                <button class="icon-btn-sm" title="Resume all" onclick="showPopup('resumeall')">▶</button>
+                <button class="icon-btn-sm" title="Delete" onclick="showPopup('deletetask')">🗑</button>
+                <button class="filter-btn" onclick="showPopup('filter')"><span>▼</span> Filter</button>
+                <input class="search-box" type="text" placeholder="Search">
+                <button class="search-icon-btn">🔍</button>
+            </div>
+            <div class="task-card active" onclick="showPopup('liveaudit')">
+                <div class="task-card-header">
+                    <div class="task-name">2. Live audit from Proxy (all traffic)</div>
+                    <div class="task-actions">
+                        <button class="task-icon-btn">ℹ</button>
+                        <button class="task-icon-btn">⋯</button>
+                    </div>
+                </div>
+                <div class="task-desc">Audit checks - passive</div>
+                <div class="task-badges">
+                    <span class="badge-label">Issues:</span>
+                    <span class="badge red">0</span>
+                    <span class="badge orange">0</span>
+                    <span class="badge blue">13</span>
+                    <span class="badge gray">25</span>
+                </div>
+                <div class="capture-row">
+                    <span>Capturing</span>
+                    <div class="toggle"></div>
+                </div>
+            </div>
+            <div class="task-card" onclick="showPopup('livecrawl')">
+                <div class="task-card-header">
+                    <div class="task-name">1. Live passive crawl from Proxy (a...</div>
+                    <div class="task-actions">
+                        <button class="task-icon-btn">ℹ</button>
+                        <button class="task-icon-btn">⋯</button>
+                    </div>
+                </div>
+                <div class="task-desc2">Add links. Add item itself, same domain and URLs in suite scope.</div>
+                <div class="capture-row">
+                    <span>Capturing</span>
+                    <div class="toggle"></div>
+                </div>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="content-toolbar">
+                <button class="back-btn">←</button>
+                <div class="content-title-main">2. Live audit from Proxy (all traffic)</div>
+                <button class="rate-btn" onclick="showPopup('rate')">⭐ Rate this scan</button>
+            </div>
+            <div class="content-tabs">
+                <div class="ctab active" onclick="switchCtab(this)">Summary</div>
+                <div class="ctab" onclick="switchCtab(this)">Audit items</div>
+                <div class="ctab" onclick="switchCtab(this)">Issues</div>
+                <div class="ctab" onclick="switchCtab(this)">Event log</div>
+                <div class="ctab" onclick="switchCtab(this)">Logger</div>
+                <div class="ctab" onclick="switchCtab(this)">Audit log</div>
+            </div>
+            <div class="content-body">
+                <div class="vuln-section-header">
+                    <div class="vuln-section-title">
+                        <span class="warn-icon">⚠</span>
+                        Most serious vulnerabilities found (live)
+                    </div>
+                    <button class="view-all-link" onclick="showPopup('viewall')">View all</button>
+                </div>
+                <table class="vuln-table"><thead><tr>
+                    <th class="sorted">Issue type <span class="sort-arrow">▲</span></th>
+                    <th>Host</th><th>Time</th>
+                </tr></thead><tbody id="vulnTableBody"></tbody></table>
+            </div>
+        </div>
+        <div class="right-panel">
+            <div class="rp-section">
+                <div class="rp-title">Task configuration <button class="rp-link" onclick="showPopup('taskconfig')">View configuration</button></div>
+                <div class="rp-row"><span class="rp-label">Task type:</span><span class="rp-value">Live audit</span></div>
+                <div class="rp-row"><span class="rp-label">Scope:</span><span class="rp-value">Proxy (all traffic)</span></div>
+                <div class="rp-row"><span class="rp-label">Configuration:</span><span class="rp-value">Audit checks - passive</span></div>
+                <div class="rp-row" style="margin-top:6px;"><span class="rp-label">Capturing</span><div class="toggle" style="margin-left:auto"></div></div>
+            </div>
+            <div class="rp-section">
+                <div class="rp-title"><span class="clock-icon">⏱</span> Task progress</div>
+                <div class="rp-grid">
+                    <div class="rp-row"><span class="rp-label">Total audit items:</span><span class="rp-value">116</span></div>
+                    <div class="rp-row"><span class="rp-label">Requests:</span><span class="rp-value">10</span></div>
+                    <div class="rp-row"><span class="rp-label">Audit items pending:</span><span class="rp-value">0</span></div>
+                    <div class="rp-row"><span class="rp-label">Network errors:</span><span class="rp-value">0</span></div>
+                    <div class="rp-row"><span class="rp-label">Audit items in progress:</span><span class="rp-value">0</span></div>
+                    <div class="rp-row"></div>
+                    <div class="rp-row"><span class="rp-label">Audit items completed:</span><span class="rp-value">116</span></div>
+                </div>
+            </div>
+            <div class="task-log">
+                <div class="task-log-title"><span class="clock-icon">📝</span> Task log</div>
+                <div class="log-entries" id="taskLog"></div>
+            </div>
+        </div>
+    `;
+
+    showDashboardUI();
+</script>
+</body>
+</html>
