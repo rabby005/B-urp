@@ -510,7 +510,7 @@ function subTabEnter(id) {
 }
 
 // ── Toast ─────────────────────────────────────────────
-function toast(msg) {
+function toast() {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
   clearTimeout(t._to);
