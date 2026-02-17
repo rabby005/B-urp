@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Burp Suite Professional v2025.12.5 - Temporary Project - CSRR</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg-base: #1e1e2e; --bg-panel: #252538; --bg-menu: #2a2a3f;
+    --bg-header: #21212f; --bg-button: #2d2d44; --bg-button-hover: #3a3a55;
+    --bg-input: #141420; --border: #3a3a5c; --border-light: #2e2e48;
+    --accent-orange: #e8742a; --accent-orange-light: #f08c45;
+    --accent-blue: #4a9eff; --accent-green: #2ecc71; --accent-red: #e74c3c;
+    --text-primary: #d4d4e8; --text-secondary: #8888aa;
+    --text-muted: #555570; --text-header: #aaaacc; --title-bar: #18181f;
+  }
+  body { font-family: 'IBM Plex Sans', sans-serif; background: var(--bg-base); color: var(--text-primary); font-size: 12px; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* Title Bar */
+  .title-bar { background: var(--title-bar); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; height: 28px; padding: 0 8px; user-select: none; }
+  .title-bar-icon { width: 14px; height: 14px; background: var(--accent-orange); clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); margin-right: 6px; }
+  .title-bar-left { display: flex; align-items: center; }
+  .title-bar-title { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-secondary); }
+  .title-bar-controls { display: flex; gap: 6px; }
+  .win-btn { width: 22px; height: 18px; border: none; background: var(--bg-menu); color: var(--text-secondary); font-size: 10px; cursor: pointer; border-radius: 2px; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+  .win-btn:hover { background: var(--bg-button-hover); color: var(--text-primary); }
+  .win-btn.close:hover { background: #c0392b; color: #fff; }
+
+  /* Menu Bar */
+  .menu-bar { background: var(--bg-menu); border-bottom: 1px solid var(--border); display: flex; align-items: center; height: 26px; padding: 0 4px; }
+  .menu-item { padding: 0 10px; height: 100%; display: flex; align-items: center; color: var(--text-secondary); font-size: 11.5px; cursor: pointer; border-radius: 2px; transition: background 0.1s, color 0.1s; user-select: none; }
+  .menu-item:hover { background: var(--bg-button-hover); color: var(--text-primary); }
+
+  /* Main Nav Tabs */
+  .main-nav { background: var(--bg-header); border-bottom: 1px solid var(--border); display: flex; align-items: stretch; height: 32px; padding: 0 0 0 4px; gap: 1px; }
+  .nav-tab { padding: 0 16px; display: flex; align-items: center; color: var(--text-secondary); font-size: 12px; font-weight: 500; cursor: pointer; border-radius: 3px 3px 0 0; border: 1px solid transparent; border-bottom: none; position: relative; top: 1px; transition: all 0.1s; user-select: none; }
+  .nav-tab:hover { color: var(--text-primary); background: var(--bg-panel); }
+  .nav-tab.active { background: var(--bg-base); color: var(--text-primary); border-color: var(--border); border-bottom-color: var(--bg-base); }
+  .nav-tab.active::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--accent-orange); border-radius: 3px 3px 0 0; }
+
+  /* Proxy Sub-Tabs */
+  .proxy-tabs { background: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; align-items: stretch; height: 28px; padding: 0 8px; gap: 2px; }
+  .proxy-tab { padding: 0 14px; display: flex; align-items: center; color: var(--text-secondary); font-size: 11.5px; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.1s; user-select: none; }
+  .proxy-tab:hover { color: var(--text-primary); }
+  .proxy-tab.active { color: var(--accent-orange); border-bottom-color: var(--accent-orange); font-weight: 500; }
+
+  /* Content */
+  .content { flex: 1; overflow-y: auto; padding: 14px 16px; background: var(--bg-base); }
+  .content::-webkit-scrollbar { width: 8px; }
+  .content::-webkit-scrollbar-track { background: var(--bg-input); }
+  .content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  /* Section */
+  .section { margin-bottom: 22px; }
+  .section-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .section-icon { width: 16px; height: 16px; border: 1.5px solid var(--text-muted); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--text-muted); flex-shrink: 0; }
+  .section-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .section-desc { font-size: 11.5px; color: var(--text-secondary); margin-left: 24px; margin-bottom: 8px; line-height: 1.5; }
+  .section-option { display: flex; align-items: center; gap: 6px; margin-left: 24px; margin-bottom: 8px; font-size: 11.5px; color: var(--text-secondary); cursor: pointer; user-select: none; }
+  .section-option input[type="checkbox"] { accent-color: var(--accent-orange); width: 12px; height: 12px; }
+
+  /* Table Panel */
+  .table-panel { display: flex; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; background: var(--bg-input); }
+  .table-actions { display: flex; flex-direction: column; gap: 2px; padding: 6px; background: var(--bg-panel); border-right: 1px solid var(--border); min-width: 76px; }
+  .action-btn { padding: 5px 0; background: var(--bg-button); border: 1px solid var(--border); border-radius: 3px; color: var(--text-primary); font-size: 11.5px; font-family: 'IBM Plex Sans', sans-serif; cursor: pointer; text-align: center; transition: background 0.1s, border-color 0.1s; user-select: none; }
+  .action-btn:hover { background: var(--bg-button-hover); border-color: var(--accent-orange); color: var(--accent-orange-light); }
+
+  .table-wrapper { flex: 1; overflow-x: auto; overflow-y: auto; max-height: 220px; }
+  .table-wrapper::-webkit-scrollbar { height: 6px; width: 6px; }
+  .table-wrapper::-webkit-scrollbar-track { background: var(--bg-input); }
+  .table-wrapper::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  table { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+  thead tr { background: var(--bg-header); position: sticky; top: 0; z-index: 1; }
+  th { padding: 5px 10px; text-align: left; color: var(--text-header); font-weight: 600; font-size: 10.5px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border-light); letter-spacing: 0.05em; text-transform: uppercase; white-space: nowrap; }
+  th:last-child { border-right: none; }
+  tbody tr { border-bottom: 1px solid var(--border-light); cursor: pointer; transition: background 0.08s; }
+  tbody tr:hover { background: rgba(232,116,42,0.07); }
+  tbody tr.selected { background: rgba(232,116,42,0.14); outline: 1px solid rgba(232,116,42,0.5); }
+  td { padding: 4px 10px; color: var(--text-primary); border-right: 1px solid var(--border-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+  td:last-child { border-right: none; }
+  td.checkbox-cell { text-align: center; width: 30px; padding: 0 6px; }
+  td.checkbox-cell input { accent-color: var(--accent-orange); width: 11px; height: 11px; cursor: pointer; }
+  .badge { display: inline-block; padding: 1px 6px; border-radius: 2px; font-size: 10px; font-weight: 500; }
+  .badge-regex { background: rgba(74,158,255,0.15); color: #6ab4ff; border: 1px solid rgba(74,158,255,0.25); }
+  .match-val { color: #e88a4a; }
+  .replace-val { color: #6ab4ff; }
+  .comment-val { color: var(--text-secondary); font-style: italic; }
+  .item-val { color: #a0d890; }
+  .table-expand { width: 14px; background: var(--bg-panel); border-left: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); font-size: 9px; }
+  .table-expand:hover { color: var(--text-primary); }
+  .empty-table-row td { height: 140px; text-align: center; color: var(--text-muted); font-family: 'IBM Plex Sans', sans-serif; font-size: 11.5px; border: none; }
+
+  /* Status Bar */
+  .status-bar { background: var(--bg-menu); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; height: 22px; padding: 0 10px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--text-muted); }
+  .status-left { display: flex; gap: 14px; }
+  .status-right { display: flex; gap: 14px; align-items: center; }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-green); display: inline-block; margin-right: 4px; }
+  .memory-bar-wrap { display: flex; align-items: center; gap: 5px; }
+  .memory-bar { width: 60px; height: 5px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .memory-bar-fill { height: 100%; width: 9%; background: var(--accent-green); border-radius: 2px; }
+
+  /* Tab pages */
+  .tab-page { display: none; }
+  .tab-page.active { display: block; }
+  .tab-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center; }
+  .tab-placeholder-icon { font-size: 40px; margin-bottom: 14px; opacity: 0.3; }
+  .tab-placeholder-title { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+  .tab-placeholder-desc { font-size: 12px; color: var(--text-muted); max-width: 340px; line-height: 1.7; }
+
+  /* ══ POPUP ══ */
+  .popup-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+  .popup-overlay.show { display: flex; animation: fadeIn 0.15s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .popup-box { background: var(--bg-panel); border: 1px solid var(--accent-orange); border-radius: 8px; width: 480px; max-width: 95vw; box-shadow: 0 12px 50px rgba(0,0,0,0.8); animation: slideUp 0.18s ease; overflow: hidden; }
+  @keyframes slideUp { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .popup-header { background: var(--bg-header); border-bottom: 1px solid var(--border); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .popup-title-text { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: var(--accent-orange); }
+  .popup-close { background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 2px 7px; border-radius: 3px; transition: all 0.1s; }
+  .popup-close:hover { color: #fff; background: var(--accent-red); }
+  .popup-body { padding: 14px 16px; }
+  .popup-rule-name { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .popup-grid { display: grid; grid-template-columns: 120px 1fr; gap: 7px 10px; margin-bottom: 12px; }
+  .popup-label { color: var(--text-muted); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.07em; padding-top: 2px; }
+  .popup-value { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--text-primary); word-break: break-all; }
+  .popup-value.orange { color: #e88a4a; }
+  .popup-value.blue { color: #6ab4ff; }
+  .popup-value.green { color: #a0d890; }
+  .popup-explanation { background: var(--bg-input); border: 1px solid var(--border); border-left: 3px solid var(--accent-orange); border-radius: 4px; padding: 10px 13px; }
+  .popup-explanation-title { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent-orange); margin-bottom: 6px; font-weight: 700; }
+  .popup-explanation-text { font-size: 12px; color: var(--text-secondary); line-height: 1.7; }
+  .popup-footer { background: var(--bg-input); border-top: 1px solid var(--border); padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; }
+  .popup-hint { font-size: 10.5px; color: var(--text-muted); }
+  .kbd { display: inline-block; background: var(--bg-button); border: 1px solid var(--border); border-radius: 3px; padding: 1px 6px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-secondary); }
+  .popup-dbl-hint { font-size: 10.5px; color: var(--accent-orange); }
+
+  /* Toast */
+  .toast { position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%); background: var(--bg-panel); border: 1px solid var(--accent-orange); border-radius: 5px; padding: 7px 20px; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--accent-orange-light); box-shadow: 0 4px 20px rgba(0,0,0,0.5); z-index: 10000; opacity: 0; pointer-events: none; transition: opacity 0.2s; white-space: nowrap; }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- ══ POPUP ══ -->
+<div class="popup-overlay" id="popupOverlay" onclick="closeBg(event)">
+  <div class="popup-box">
+    <div class="popup-header">
+      <span class="popup-title-text" id="popupTitle">Details</span>
+      <button class="popup-close" onclick="closePopup()">✕</button>
+    </div>
+    <div class="popup-body">
+      <div class="popup-rule-name" id="popupRuleName"></div>
+      <div class="popup-grid" id="popupGrid"></div>
+      <div class="popup-explanation">
+        <div class="popup-explanation-title">⚡ এই element টা কী করে</div>
+        <div class="popup-explanation-text" id="popupDesc"></div>
+      </div>
+    </div>
+    <div class="popup-footer">
+      <div class="popup-hint"><span class="kbd">ESC</span> বা বাইরে click → বন্ধ</div>
+      <div class="popup-dbl-hint">⚡ Double-click → Tab এ enter হবে</div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ══ TITLE BAR ══ -->
+<div class="title-bar">
+  <div class="title-bar-left">
+    <div class="title-bar-icon"></div>
+    <span class="title-bar-title">Burp Suite Professional v2025.12.5 – Temporary Project – CSRR</span>
+  </div>
+  <div class="title-bar-controls">
+    <button class="win-btn">&#8211;</button>
+    <button class="win-btn">&#9633;</button>
+    <button class="win-btn close" onclick="toast('Window বন্ধ হলো 👋')">&#10005;</button>
+  </div>
+</div>
+
+<!-- ══ MENU BAR ══ -->
+<div class="menu-bar">
+  <div class="menu-item" onclick="menuInfo('Burp','Burp Suite global settings, project options, user options। Application restart ও exit এখান থেকে করা যায়।')">Burp</div>
+  <div class="menu-item" onclick="menuInfo('Project','Project save/load, scope configuration ও credentials manage করা হয়।')">Project</div>
+  <div class="menu-item" onclick="menuInfo('Intruder','Intruder tool এর shortcuts ও attack configuration options।')">Intruder</div>
+  <div class="menu-item" onclick="menuInfo('Repeater','Repeater tab manage করার options ও keyboard shortcuts।')">Repeater</div>
+  <div class="menu-item" onclick="menuInfo('View','UI layout, font size ও color theme পরিবর্তন করার options।')">View</div>
+  <div class="menu-item" onclick="menuInfo('Help','Documentation, keyboard shortcuts reference ও version info।')">Help</div>
+</div>
+
+<!-- ══ MAIN NAV ══ -->
+<div class="main-nav">
+  <div class="nav-tab" data-tab="dashboard" onclick="tabClick(this,'dashboard')" ondblclick="tabEnter('dashboard')">Dashboard</div>
+  <div class="nav-tab" data-tab="target" onclick="tabClick(this,'target')" ondblclick="tabEnter('target')">Target</div>
+  <div class="nav-tab active" data-tab="proxy" onclick="tabClick(this,'proxy')" ondblclick="tabEnter('proxy')">Proxy</div>
+  <div class="nav-tab" data-tab="intruder" onclick="tabClick(this,'intruder')" ondblclick="tabEnter('intruder')">Intruder</div>
+  <div class="nav-tab" data-tab="repeater" onclick="tabClick(this,'repeater')" ondblclick="tabEnter('repeater')">Repeater</div>
+  <div class="nav-tab" data-tab="collaborator" onclick="tabClick(this,'collaborator')" ondblclick="tabEnter('collaborator')">Collaborator</div>
+  <div class="nav-tab" data-tab="sequencer" onclick="tabClick(this,'sequencer')" ondblclick="tabEnter('sequencer')">Sequencer</div>
+  <div class="nav-tab" data-tab="decoder" onclick="tabClick(this,'decoder')" ondblclick="tabEnter('decoder')">Decoder</div>
+  <div class="nav-tab" data-tab="comparer" onclick="tabClick(this,'comparer')" ondblclick="tabEnter('comparer')">Comparer</div>
+  <div class="nav-tab" data-tab="logger" onclick="tabClick(this,'logger')" ondblclick="tabEnter('logger')">Logger</div>
+  <div class="nav-tab" data-tab="organizer" onclick="tabClick(this,'organizer')" ondblclick="tabEnter('organizer')">Organizer</div>
+  <div class="nav-tab" data-tab="extensions" onclick="tabClick(this,'extensions')" ondblclick="tabEnter('extensions')">Extensions</div>
+  <div class="nav-tab" data-tab="learn" onclick="tabClick(this,'learn')" ondblclick="tabEnter('learn')">Learn</div>
+</div>
+
+<!-- ══ PROXY SUB-TABS ══ -->
+<div class="proxy-tabs" id="proxySubTabs">
+  <div class="proxy-tab" data-sub="intercept" onclick="subTabClick(this,'intercept')" ondblclick="subTabEnter('intercept')">Intercept</div>
+  <div class="proxy-tab" data-sub="http-history" onclick="subTabClick(this,'http-history')" ondblclick="subTabEnter('http-history')">HTTP history</div>
+  <div class="proxy-tab" data-sub="ws-history" onclick="subTabClick(this,'ws-history')" ondblclick="subTabEnter('ws-history')">WebSockets history</div>
+  <div class="proxy-tab active" data-sub="match-replace" onclick="subTabClick(this,'match-replace')" ondblclick="subTabEnter('match-replace')">Match and replace</div>
+  <div class="proxy-tab" data-sub="proxy-settings" onclick="subTabClick(this,'proxy-settings')" ondblclick="subTabEnter('proxy-settings')">⚙ Proxy settings</div>
+</div>
+
+<!-- ══ CONTENT ══ -->
+<div class="content">
+
+  <!-- Match & Replace Page -->
+  <div class="tab-page active" id="page-match-replace">
+
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon">?</div>
+        <span class="section-title">HTTP match and replace rules</span>
+        <div class="section-icon">⚙</div>
+      </div>
+      <div class="section-desc">Use these settings to automatically replace parts of HTTP requests and responses passing through the Proxy.</div>
+      <div class="section-option"><input type="checkbox" id="http-scope"><label for="http-scope">Only apply to in-scope items</label></div>
+
+      <div class="table-panel">
+        <div class="table-actions">
+          <button class="action-btn" onclick="actionInfo('Add','HTTP','নতুন rule তৈরি করে। Item type (request header/body/URL), match pattern (regex বা literal string), replace value ও optional comment দিয়ে rule define করা যায়।')">Add</button>
+          <button class="action-btn" onclick="actionInfo('Edit','HTTP','Selected row এর rule edit করে। Pattern বা replace value যেকোনো কিছু পরিবর্তন করা যাবে।')">Edit</button>
+          <button class="action-btn" onclick="actionInfo('Remove','HTTP','Selected rule permanently delete করে। Undo সম্ভব নয়।')">Remove</button>
+          <button class="action-btn" onclick="actionInfo('Up','HTTP','Selected rule টি list এ এক ধাপ উপরে নিয়ে যায়। Rules উপর থেকে নিচে sequential order এ apply হয়।')">Up</button>
+          <button class="action-btn" onclick="actionInfo('Down','HTTP','Selected rule টি list এ এক ধাপ নিচে নামায়।')">Down</button>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Enabled</th><th>Item</th><th>Name</th><th>Match</th><th>Replace</th><th>Type</th><th>Comment</th></tr></thead>
+            <tbody>
+              <tr onclick="ruleInfo(this,0)" ondblclick="ruleEdit(this)">
+                <td class="checkbox-cell"><input type="checkbox" onclick="event.stopPropagation()"></td>
+                <td class="item-val">Request header</td><td></td>
+                <td class="match-val">^User-Agent.*$</td>
+                <td class="replace-val">User-Agent: Mozilla/4.0 (compa…</td>
+                <td><span class="badge badge-regex">Regex</span></td>
+                <td class="comment-val">Emulate IE</td>
+              </tr>
+              <tr onclick="ruleInfo(this,1)" ondblclick="ruleEdit(this)">
+                <td class="checkbox-cell"><input type="checkbox" onclick="event.stopPropagation()"></td>
+                <td class="item-val">Request header</td><td></td>
+                <td class="match-val">^User-Agent.*$</td>
+                <td class="replace-val">User-Agent: Mozilla/5.0 (iPhone…</td>
+                <td><span class="badge badge-regex">Regex</span></td>
+                <td class="comment-val">Emulate iOS</td>
+              </tr>
+              <tr onclick="ruleInfo(this,2)" ondblclick="ruleEdit(this)">
+                <td class="checkbox-cell"><input type="checkbox" onclick="event.stopPropagation()"></td>
+                <td class="item-val">Request header</td><td></td>
+                <td class="match-val">^User-Agent.*$</td>
+                <td class="replace-val">User-Agent: Mozilla/5.0 (Linux; …</td>
+                <td><span class="badge badge-regex">Regex</span></td>
+                <td class="comment-val">Emulate Android</td>
+              </tr>
+              <tr onclick="ruleInfo(this,3)" ondblclick="ruleEdit(this)">
+                <td class="checkbox-cell"><input type="checkbox" onclick="event.stopPropagation()"></td>
+                <td class="item-val">Request header</td><td></td>
+                <td class="match-val">^If-Modified-Since.*$</td>
+                <td class="replace-val"></td>
+                <td><span class="badge badge-regex">Regex</span></td>
+                <td class="comment-val">Require non-cached response</td>
+              </tr>
+              <tr onclick="ruleInfo(this,4)" ondblclick="ruleEdit(this)">
+                <td class="checkbox-cell"><input type="checkbox" onclick="event.stopPropagation()"></td>
+                <td class="item-val">Request header</td><td></td>
+                <td class="match-val">^If-None-Match.*$</td>
+                <td class="replace-val"></td>
+                <td><span class="badge badge-regex">Regex</span></td>
+                <td class="comment-val">Require non-cached response</td>
+              </tr>
+              <tr onclick="ruleInfo(this,5)" ondblclick="ruleEdit(this)">
+                <td class="checkbox-cell"><input type="checkbox" onclick="event.stopPropagation()"></td>
+                <td class="item-val">Request header</td><td></td>
+                <td class="match-val">^Referer.*$</td>
+                <td class="replace-val"></td>
+                <td><span class="badge badge-regex">Regex</span></td>
+                <td class="comment-val">Hide Referer header</td>
+              </tr>
+              <tr onclick="ruleInfo(this,6)" ondblclick="ruleEdit(this)">
+                <td class="checkbox-cell"><input type="checkbox" onclick="event.stopPropagation()"></td>
+                <td class="item-val">Request header</td><td></td>
+                <td class="match-val">^Accept-Encoding.*$</td>
+                <td class="replace-val"></td>
+                <td><span class="badge badge-regex">Regex</span></td>
+                <td class="comment-val">Require non-compressed re…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-expand">&#9654;</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon">?</div>
+        <span class="section-title">WebSocket match and replace rules</span>
+        <div class="section-icon">⚙</div>
+      </div>
+      <div class="section-desc">Use these settings to automatically replace parts of WebSocket messages passing through the Proxy.</div>
+      <div class="section-option"><input type="checkbox" id="ws-scope"><label for="ws-scope">Only apply to in-scope items</label></div>
+      <div class="table-panel">
+        <div class="table-actions">
+          <button class="action-btn" onclick="actionInfo('Add','WebSocket','WebSocket message এর জন্য নতুন rule তৈরি করে। Direction (client→server বা server→client) ও match pattern দেওয়া যায়।')">Add</button>
+          <button class="action-btn" onclick="actionInfo('Edit','WebSocket','Selected WebSocket rule edit করে।')">Edit</button>
+          <button class="action-btn" onclick="actionInfo('Remove','WebSocket','Selected WebSocket rule delete করে।')">Remove</button>
+          <button class="action-btn" onclick="actionInfo('Up','WebSocket','Rule কে list এ উপরে নিয়ে যায়।')">Up</button>
+          <button class="action-btn" onclick="actionInfo('Down','WebSocket','Rule কে list এ নিচে নামায়।')">Down</button>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Enabled</th><th>Direction</th><th>Match</th><th>Replace</th><th>Type</th><th>Comment</th></tr></thead>
+            <tbody><tr class="empty-table-row"><td colspan="6"></td></tr></tbody>
+          </table>
+        </div>
+        <div class="table-expand">&#9654;</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Other pages -->
+  <div class="tab-page" id="page-dashboard"><div class="tab-placeholder"><div class="tab-placeholder-icon">📊</div><div class="tab-placeholder-title">Dashboard</div><div class="tab-placeholder-desc">Active scans, vulnerability alerts ও Burp Suite এর সামগ্রিক activity live দেখা যায়।</div></div></div>
+  <div class="tab-page" id="page-target"><div class="tab-placeholder"><div class="tab-placeholder-icon">🎯</div><div class="tab-placeholder-title">Target</div><div class="tab-placeholder-desc">Site map tree ও test scope define করার জায়গা। কোন domains ও paths test করবে সেটা এখানে set করো।</div></div></div>
+  <div class="tab-page" id="page-proxy"><div class="tab-placeholder"><div class="tab-placeholder-icon">🔀</div><div class="tab-placeholder-title">Proxy</div><div class="tab-placeholder-desc">Browser ও server এর মধ্যে traffic intercept ও inspect করা হয়। HTTP history, WebSocket log ও match/replace rules এখানে।</div></div></div>
+  <div class="tab-page" id="page-intruder"><div class="tab-placeholder"><div class="tab-placeholder-icon">💥</div><div class="tab-placeholder-title">Intruder</div><div class="tab-placeholder-desc">Automated attack tool। Payloads দিয়ে fuzzing, brute-force ও parameter injection চালানো যায়।</div></div></div>
+  <div class="tab-page" id="page-repeater"><div class="tab-placeholder"><div class="tab-placeholder-icon">🔁</div><div class="tab-placeholder-title">Repeater</div><div class="tab-placeholder-desc">Single HTTP request manually modify করে বারবার পাঠানো যায় এবং response compare করা যায়।</div></div></div>
+  <div class="tab-page" id="page-collaborator"><div class="tab-placeholder"><div class="tab-placeholder-icon">🌐</div><div class="tab-placeholder-title">Collaborator</div><div class="tab-placeholder-desc">Out-of-band vulnerability (SSRF, blind XXE) detect করতে Burp Collaborator server ব্যবহার করা হয়।</div></div></div>
+  <div class="tab-page" id="page-sequencer"><div class="tab-placeholder"><div class="tab-placeholder-icon">🎲</div><div class="tab-placeholder-title">Sequencer</div><div class="tab-placeholder-desc">Session tokens এর randomness ও predictability statistical analysis করে।</div></div></div>
+  <div class="tab-page" id="page-decoder"><div class="tab-placeholder"><div class="tab-placeholder-icon">🔓</div><div class="tab-placeholder-title">Decoder</div><div class="tab-placeholder-desc">URL, Base64, HTML entity, Hex, Gzip ইত্যাদি format এ encode ও decode করা যায়।</div></div></div>
+  <div class="tab-page" id="page-comparer"><div class="tab-placeholder"><div class="tab-placeholder-icon">⚖️</div><div class="tab-placeholder-title">Comparer</div><div class="tab-placeholder-desc">দুটো HTTP response বা arbitrary data এর পার্থক্য word বা byte level এ visualize করে দেখায়।</div></div></div>
+  <div class="tab-page" id="page-logger"><div class="tab-placeholder"><div class="tab-placeholder-icon">📝</div><div class="tab-placeholder-title">Logger</div><div class="tab-placeholder-desc">সমস্ত tools এর HTTP traffic এর detailed log এখানে রাখা হয়। Extension traffic ও include হয়।</div></div></div>
+  <div class="tab-page" id="page-organizer"><div class="tab-placeholder"><div class="tab-placeholder-icon">🗂️</div><div class="tab-placeholder-title">Organizer</div><div class="tab-placeholder-desc">Important requests annotate ও organize করে রাখার জায়গা। Testing workflow এ note এর মতো কাজ করে।</div></div></div>
+  <div class="tab-page" id="page-extensions"><div class="tab-placeholder"><div class="tab-placeholder-icon">🧩</div><div class="tab-placeholder-title">Extensions</div><div class="tab-placeholder-desc">BApp Store থেকে extension install করো অথবা Java/Python/Ruby দিয়ে নিজের extension লেখো।</div></div></div>
+  <div class="tab-page" id="page-learn"><div class="tab-placeholder"><div class="tab-placeholder-icon">📚</div><div class="tab-placeholder-title">Learn</div><div class="tab-placeholder-desc">Built-in web security learning labs, documentation ও guided testing resources পাবে এখানে।</div></div></div>
+  <div class="tab-page" id="page-intercept"><div class="tab-placeholder"><div class="tab-placeholder-icon">⏸️</div><div class="tab-placeholder-title">Intercept</div><div class="tab-placeholder-desc">Proxy interceptor on/off করো। Intercepted request manually forward বা drop করা যায়।</div></div></div>
+  <div class="tab-page" id="page-http-history"><div class="tab-placeholder"><div class="tab-placeholder-icon">📜</div><div class="tab-placeholder-title">HTTP History</div><div class="tab-placeholder-desc">Proxy দিয়ে যাওয়া সমস্ত HTTP request ও response এর full log এখানে দেখা যায়।</div></div></div>
+  <div class="tab-page" id="page-ws-history"><div class="tab-placeholder"><div class="tab-placeholder-icon">🔌</div><div class="tab-placeholder-title">WebSockets History</div><div class="tab-placeholder-desc">WebSocket connection এর সকল message এর বিস্তারিত log এখানে থাকে।</div></div></div>
+  <div class="tab-page" id="page-proxy-settings"><div class="tab-placeholder"><div class="tab-placeholder-icon">⚙️</div><div class="tab-placeholder-title">Proxy Settings</div><div class="tab-placeholder-desc">Proxy listener port, SSL certificate ও intercept filter configure করো।</div></div></div>
+
+</div>
+
+<!-- ══ STATUS BAR ══ -->
+<div class="status-bar">
+  <div class="status-left">
+    <span><span class="status-dot"></span>Event log</span>
+    <span style="cursor:pointer;color:var(--text-secondary)" onclick="toast('কোনো active issue নেই ✓')">All issues</span>
+  </div>
+  <div class="status-right">
+    <div class="memory-bar-wrap">
+      <span>💾</span><span>Memory: 180.6MB of 1.91GB</span>
+      <div class="memory-bar"><div class="memory-bar-fill"></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Rule data ──────────────────────────────────────────
+const rules = [
+  { name:'Emulate Internet Explorer', comment:'Emulate IE', item:'Request header', match:'^User-Agent.*$', replace:'User-Agent: Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1)', type:'Regex',
+    desc:'প্রতিটি HTTP request এর <b>User-Agent</b> header টিকে Internet Explorer এর User-Agent দিয়ে replace করে। পুরনো বা browser-specific application এ IE এর behavior test করার জন্য কাজে আসে।' },
+  { name:'Emulate iPhone (iOS)', comment:'Emulate iOS', item:'Request header', match:'^User-Agent.*$', replace:'User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)', type:'Regex',
+    desc:'User-Agent টিকে iPhone এর মতো করে পাঠায়। Mobile-specific endpoint বা response পাওয়ার জন্য ব্যবহার হয়। অনেক app এর mobile API আলাদা behavior দেখায়।' },
+  { name:'Emulate Android Device', comment:'Emulate Android', item:'Request header', match:'^User-Agent.*$', replace:'User-Agent: Mozilla/5.0 (Linux; Android 14; Pixel 8)', type:'Regex',
+    desc:'User-Agent header টিকে Android device এর মতো করে পাঠায়। Android-specific endpoint বা feature test করতে কাজে লাগে।' },
+  { name:'Remove If-Modified-Since (Force Fresh Response)', comment:'Require non-cached response', item:'Request header', match:'^If-Modified-Since.*$', replace:'(empty — header টি remove হয়)', type:'Regex',
+    desc:'<b>If-Modified-Since</b> header টি remove করে দেয়। Browser এই header পাঠালে server "304 Not Modified" দিয়ে cached response দিতে পারে। Header সরিয়ে দিলে server সবসময় fresh full response পাঠাতে বাধ্য হয়।' },
+  { name:'Remove If-None-Match (Disable ETag Cache)', comment:'Require non-cached response', item:'Request header', match:'^If-None-Match.*$', replace:'(empty — header টি remove হয়)', type:'Regex',
+    desc:'<b>If-None-Match</b> (ETag-based cache validation) header টি remove করে। এটা সরিয়ে দিলে server cached content না দিয়ে সবসময় full response পাঠায়, ফলে আসল response content দেখা যায়।' },
+  { name:'Hide Referer Header', comment:'Hide Referer header', item:'Request header', match:'^Referer.*$', replace:'(empty — header টি remove হয়)', type:'Regex',
+    desc:'<b>Referer</b> header সম্পূর্ণ remove করে দেয়। এই header দিয়ে server জানতে পারে user কোন page থেকে এসেছে। অনেক application Referer check করে access control দেয় — এটা remove করলে সেই check bypass করা সম্ভব হয়।' },
+  { name:'Remove Accept-Encoding (Force Uncompressed)', comment:'Require non-compressed response', item:'Request header', match:'^Accept-Encoding.*$', replace:'(empty — header টি remove হয়)', type:'Regex',
+    desc:'<b>Accept-Encoding</b> header remove করলে server compressed (gzip/deflate/brotli) response পাঠাতে পারে না। Plain text এ response আসে, যা Burp Suite এ পড়া ও analyze করা অনেক সহজ হয়।' }
+];
+
+// ── Tab info ──────────────────────────────────────────
+const TAB_INFO = {
+  dashboard:{ icon:'📊', name:'Dashboard', desc:'Active scans, issue alerts ও Burp Suite এর সামগ্রিক activity এখানে live দেখা যায়।' },
+  target:{ icon:'🎯', name:'Target', desc:'Site map tree ও test scope define করার জায়গা। কোন domains ও paths include/exclude করবে তা এখানে set করো।' },
+  proxy:{ icon:'🔀', name:'Proxy', desc:'Browser ও server এর মাঝে man-in-the-middle হিসেবে কাজ করে। Traffic intercept, modify ও log করা যায়।' },
+  intruder:{ icon:'💥', name:'Intruder', desc:'Automated attack tool। Payloads দিয়ে fuzzing, brute-force ও parameter injection test চালানো যায়।' },
+  repeater:{ icon:'🔁', name:'Repeater', desc:'Single request manually modify করে বারবার পাঠানো যায়। Response compare করা যায়।' },
+  collaborator:{ icon:'🌐', name:'Collaborator', desc:'Out-of-band vulnerability (SSRF, blind XXE, blind SQLi) detect করতে Burp Collaborator external server ব্যবহার করে।' },
+  sequencer:{ icon:'🎲', name:'Sequencer', desc:'Session tokens ও random values এর entropy ও predictability statistical analysis করে।' },
+  decoder:{ icon:'🔓', name:'Decoder', desc:'URL, Base64, HTML entity, Hex, Gzip ইত্যাদি format এ encode ও decode করা যায়।' },
+  comparer:{ icon:'⚖️', name:'Comparer', desc:'দুটো HTTP response বা arbitrary data এর মধ্যে পার্থক্য word-level বা byte-level এ দেখায়।' },
+  logger:{ icon:'📝', name:'Logger', desc:'সমস্ত tools এর HTTP traffic এর full log রাখে। Extension traffic সহ সব কিছু এখানে আসে।' },
+  organizer:{ icon:'🗂️', name:'Organizer', desc:'Important requests annotate ও organize করে রাখার জায়গা। Testing note এর মতো কাজ করে।' },
+  extensions:{ icon:'🧩', name:'Extensions', desc:'BApp Store থেকে extension install করো অথবা Java/Python/Ruby দিয়ে custom extension তৈরি করো।' },
+  learn:{ icon:'📚', name:'Learn', desc:'Built-in web security learning labs, documentation ও guided testing resources।' }
+};
+const SUB_INFO = {
+  'intercept':{ desc:'Proxy interceptor on/off করো। Intercepted request manually forward বা drop করা যায়।' },
+  'http-history':{ desc:'Proxy দিয়ে যাওয়া সমস্ত HTTP request ও response এর full log এখানে দেখা যায়।' },
+  'ws-history':{ desc:'WebSocket connection এর সকল message এর বিস্তারিত log।' },
+  'match-replace':{ desc:'HTTP ও WebSocket traffic এ automatic text replacement rules define করা হয়।' },
+  'proxy-settings':{ desc:'Proxy listener port, SSL certificates ও intercept filter configure করো।' }
+};
+
+// ── Popup helpers ─────────────────────────────────────
+function showPopup(title, name, grid, desc) {
+  document.getElementById('popupTitle').textContent = title;
+  document.getElementById('popupRuleName').textContent = name;
+  document.getElementById('popupGrid').innerHTML = grid;
+  document.getElementById('popupDesc').innerHTML = desc;
+  document.getElementById('popupOverlay').classList.add('show');
+}
+function closePopup() { document.getElementById('popupOverlay').classList.remove('show'); }
+function closeBg(e) { if (e.target === document.getElementById('popupOverlay')) closePopup(); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePopup(); });
+
+function row(label, val, cls='') {
+  return `<span class="popup-label">${label}</span><span class="popup-value ${cls}">${val}</span>`;
+}
+
+// ── Rule row click ────────────────────────────────────
+function ruleInfo(el, idx) {
+  document.querySelectorAll('tbody tr.selected').forEach(r => r.classList.remove('selected'));
+  el.classList.add('selected');
+  const r = rules[idx];
+  showPopup(
+    `📋 Rule — ${r.comment}`,
+    r.name,
+    row('Item', r.item, 'green') + row('Match Pattern', r.match, 'orange') +
+    row('Replace Value', r.replace || '<em style="color:var(--text-muted)">(empty string)</em>', 'blue') +
+    row('Type', `<span class="badge badge-regex">${r.type}</span>`) +
+    row('Comment', `<em style="color:var(--text-secondary)">${r.comment}</em>`),
+    r.desc
+  );
+}
+function ruleEdit(el) { closePopup(); toast('✏️ Rule editor খুলছে... (double-click confirmed)'); }
+
+// ── Action button click ───────────────────────────────
+function actionInfo(action, section, desc) {
+  const icons = {Add:'➕',Edit:'✏️',Remove:'🗑️',Up:'⬆️',Down:'⬇️'};
+  showPopup(
+    `${icons[action]||''} Button: "${action}"`,
+    `"${action}" বাটনের কাজ — ${section} Rules`,
+    row('Section', `${section} Match & Replace`, 'green') + row('Action', action, 'orange'),
+    desc
+  );
+}
+
+// ── Menu click ────────────────────────────────────────
+function menuInfo(name, desc) {
+  showPopup(`📌 Menu: ${name}`, `"${name}" Menu`, row('Menu Item', name, 'orange'), desc);
+}
+
+// ── Main tab: single click = popup, double click = enter ──
+function tabClick(el, id) {
+  const t = TAB_INFO[id];
+  if (!t) return;
+  showPopup(
+    `${t.icon} Tab: ${t.name}`,
+    `"${t.name}" Tab এ কী আছে?`,
+    row('Tab Name', t.name, 'orange'),
+    t.desc + '<br><br><span style="color:var(--accent-orange);font-size:11px;">⚡ Double-click করলে এই tab এ enter হবে।</span>'
+  );
+}
+function tabEnter(id) {
+  closePopup();
+  // update nav tab
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const el = document.querySelector(`.nav-tab[data-tab="${id}"]`);
+  if (el) el.classList.add('active');
+  // show/hide proxy sub-tabs
+  document.getElementById('proxySubTabs').style.display = (id === 'proxy') ? 'flex' : 'none';
+  // show page
+  document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+  const pg = document.getElementById('page-' + id);
+  if (pg) pg.classList.add('active');
+  toast(`→ "${TAB_INFO[id]?.name || id}" tab এ enter হলো`);
+}
+
+// ── Proxy sub-tab ─────────────────────────────────────
+function subTabClick(el, id) {
+  const t = SUB_INFO[id];
+  if (!t) return;
+  showPopup(
+    `🔍 Proxy Sub-Tab`,
+    `"${el.textContent.trim()}" — কী আছে এখানে?`,
+    row('Sub-Tab', el.textContent.trim(), 'orange'),
+    t.desc + '<br><br><span style="color:var(--accent-orange);font-size:11px;">⚡ Double-click করলে এই sub-tab এ enter হবে।</span>'
+  );
+}
+function subTabEnter(id) {
+  closePopup();
+  document.querySelectorAll('.proxy-tab').forEach(t => t.classList.remove('active'));
+  const el = document.querySelector(`.proxy-tab[data-sub="${id}"]`);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+  const pg = document.getElementById('page-' + id) || document.getElementById('page-match-replace');
+  if (pg) pg.classList.add('active');
+  toast(`→ Proxy "${el ? el.textContent.trim() : id}" এ enter হলো`);
+}
+
+// ── Toast ─────────────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._to);
+  t._to = setTimeout(() => t.classList.remove('show'), 2200);
+}
+</script>
+</body>
+</html>
