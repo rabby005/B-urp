@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Burp Suite Professional v2025.12.5 - Temporary Project - CSRR</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-base: #1e1e2e;
+    --bg-panel: #252538;
+    --bg-menu: #2a2a3f;
+    --bg-row: #1a1a2a;
+    --bg-row-alt: #1e1e2d;
+    --bg-header: #21212f;
+    --bg-button: #2d2d44;
+    --bg-button-hover: #3a3a55;
+    --bg-tab-active: #1e1e2e;
+    --bg-input: #141420;
+    --border: #3a3a5c;
+    --border-light: #2e2e48;
+    --accent-orange: #e8742a;
+    --accent-orange-light: #f08c45;
+    --accent-blue: #4a9eff;
+    --accent-green: #2ecc71;
+    --text-primary: #d4d4e8;
+    --text-secondary: #8888aa;
+    --text-muted: #555570;
+    --text-header: #aaaacc;
+    --tab-border: #e8742a;
+    --shadow: 0 2px 8px rgba(0,0,0,0.4);
+    --title-bar: #18181f;
+  }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-size: 12px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── Title Bar ─────────────────────────────── */
+  .title-bar {
+    background: var(--title-bar);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 28px;
+    padding: 0 8px;
+    user-select: none;
+  }
+  .title-bar-icon {
+    width: 14px; height: 14px;
+    background: var(--accent-orange);
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    margin-right: 6px;
+  }
+  .title-bar-left { display: flex; align-items: center; }
+  .title-bar-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+    letter-spacing: 0.02em;
+  }
+  .title-bar-controls { display: flex; gap: 6px; }
+  .win-btn {
+    width: 22px; height: 18px;
+    border: none;
+    background: var(--bg-menu);
+    color: var(--text-secondary);
+    font-size: 10px;
+    cursor: pointer;
+    border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  .win-btn:hover { background: var(--bg-button-hover); color: var(--text-primary); }
+  .win-btn.close:hover { background: #c0392b; color: #fff; }
+
+  /* ── Menu Bar ───────────────────────────────── */
+  .menu-bar {
+    background: var(--bg-menu);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    height: 26px;
+    padding: 0 4px;
+  }
+  .menu-item {
+    padding: 0 10px;
+    height: 100%;
+    display: flex; align-items: center;
+    color: var(--text-secondary);
+    font-size: 11.5px;
+    cursor: default;
+    border-radius: 2px;
+    transition: background 0.1s, color 0.1s;
+    user-select: none;
+  }
+  .menu-item:hover { background: var(--bg-button-hover); color: var(--text-primary); }
+
+  /* ── Main Nav Tabs ──────────────────────────── */
+  .main-nav {
+    background: var(--bg-header);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: stretch;
+    height: 32px;
+    padding: 0 0 0 4px;
+    gap: 1px;
+  }
+  .nav-tab {
+    padding: 0 16px;
+    display: flex; align-items: center;
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 3px 3px 0 0;
+    border: 1px solid transparent;
+    border-bottom: none;
+    position: relative;
+    top: 1px;
+    transition: all 0.1s;
+    user-select: none;
+    letter-spacing: 0.01em;
+  }
+  .nav-tab:hover { color: var(--text-primary); background: var(--bg-panel); }
+  .nav-tab.active {
+    background: var(--bg-base);
+    color: var(--text-primary);
+    border-color: var(--border);
+    border-bottom-color: var(--bg-base);
+  }
+  .nav-tab.active::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent-orange);
+    border-radius: 3px 3px 0 0;
+  }
+
+  /* ── Proxy Sub-Tabs ─────────────────────────── */
+  .proxy-tabs {
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: stretch;
+    height: 28px;
+    padding: 0 8px;
+    gap: 2px;
+  }
+  .proxy-tab {
+    padding: 0 14px;
+    display: flex; align-items: center;
+    color: var(--text-secondary);
+    font-size: 11.5px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.1s;
+    user-select: none;
+  }
+  .proxy-tab:hover { color: var(--text-primary); }
+  .proxy-tab.active {
+    color: var(--accent-orange);
+    border-bottom-color: var(--accent-orange);
+    font-weight: 500;
+  }
+
+  /* ── Content Area ───────────────────────────── */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 16px;
+    background: var(--bg-base);
+  }
+  .content::-webkit-scrollbar { width: 8px; }
+  .content::-webkit-scrollbar-track { background: var(--bg-input); }
+  .content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  /* ── Section ────────────────────────────────── */
+  .section {
+    margin-bottom: 22px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .section-icon {
+    width: 16px; height: 16px;
+    border: 1.5px solid var(--text-muted);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    color: var(--text-muted);
+    cursor: default;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.01em;
+  }
+  .section-desc {
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    margin-left: 24px;
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+  .section-option {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 24px;
+    margin-bottom: 8px;
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    user-select: none;
+  }
+  .section-option input[type="checkbox"] {
+    accent-color: var(--accent-orange);
+    width: 12px; height: 12px;
+  }
+
+  /* ── Table Panel ─────────────────────────────── */
+  .table-panel {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--bg-input);
+    position: relative;
+  }
+  .table-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px;
+    background: var(--bg-panel);
+    border-right: 1px solid var(--border);
+    min-width: 76px;
+  }
+  .action-btn {
+    padding: 5px 0;
+    background: var(--bg-button);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text-primary);
+    font-size: 11.5px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.1s, border-color 0.1s;
+    user-select: none;
+    letter-spacing: 0.01em;
+  }
+  .action-btn:hover {
+    background: var(--bg-button-hover);
+    border-color: var(--accent-orange);
+    color: var(--accent-orange-light);
+  }
+
+  /* ── Table ──────────────────────────────────── */
+  .table-wrapper {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 220px;
+  }
+  .table-wrapper::-webkit-scrollbar { height: 6px; width: 6px; }
+  .table-wrapper::-webkit-scrollbar-track { background: var(--bg-input); }
+  .table-wrapper::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+  }
+  thead tr {
+    background: var(--bg-header);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  th {
+    padding: 5px 10px;
+    text-align: left;
+    color: var(--text-header);
+    font-weight: 600;
+    font-size: 10.5px;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border-light);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    cursor: default;
+  }
+  th:last-child { border-right: none; }
+  th.sortable:hover { color: var(--text-primary); }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border-light);
+    transition: background 0.08s;
+    cursor: default;
+  }
+  tbody tr:hover { background: var(--bg-panel); }
+  tbody tr:nth-child(even) { background: rgba(255,255,255,0.015); }
+  tbody tr:nth-child(even):hover { background: var(--bg-panel); }
+
+  td {
+    padding: 4px 10px;
+    color: var(--text-primary);
+    border-right: 1px solid var(--border-light);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+  }
+  td:last-child { border-right: none; }
+  td.checkbox-cell { text-align: center; width: 30px; padding: 0 6px; }
+  td.checkbox-cell input { accent-color: var(--accent-orange); width: 11px; height: 11px; cursor: pointer; }
+
+  .badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 2px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+  }
+  .badge-regex {
+    background: rgba(74, 158, 255, 0.15);
+    color: #6ab4ff;
+    border: 1px solid rgba(74, 158, 255, 0.25);
+  }
+
+  .match-val { color: #e88a4a; }
+  .replace-val { color: #6ab4ff; }
+  .comment-val { color: var(--text-secondary); font-style: italic; }
+  .item-val { color: #a0d890; }
+
+  /* ── Right Expand Arrow ─────────────────────── */
+  .table-expand {
+    width: 14px;
+    background: var(--bg-panel);
+    border-left: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 9px;
+    transition: color 0.1s;
+    user-select: none;
+  }
+  .table-expand:hover { color: var(--text-primary); background: var(--bg-button-hover); }
+
+  /* ── Status Bar ─────────────────────────────── */
+  .status-bar {
+    background: var(--bg-menu);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 22px;
+    padding: 0 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--text-muted);
+  }
+  .status-left { display: flex; gap: 14px; }
+  .status-right { display: flex; gap: 14px; align-items: center; }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-green); display: inline-block; margin-right: 4px; }
+  .status-issues { color: var(--text-secondary); cursor: pointer; }
+  .status-issues:hover { color: var(--text-primary); }
+  .memory-bar-wrap { display: flex; align-items: center; gap: 5px; }
+  .memory-bar {
+    width: 60px; height: 5px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .memory-bar-fill {
+    height: 100%;
+    width: 9%;
+    background: var(--accent-green);
+    border-radius: 2px;
+  }
+  .icon-btn {
+    background: none; border: none;
+    color: var(--text-muted);
+    font-size: 11px;
+    cursor: pointer;
+    padding: 0 3px;
+    transition: color 0.1s;
+  }
+  .icon-btn:hover { color: var(--text-primary); }
+
+  /* empty websocket table */
+  .empty-table-row td {
+    height: 140px;
+    text-align: center;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 11.5px;
+    border: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- Title Bar -->
+<div class="title-bar">
+  <div class="title-bar-left">
+    <div class="title-bar-icon"></div>
+    <span class="title-bar-title">Burp Suite Professional v2025.12.5 – Temporary Project – CSRR</span>
+  </div>
+  <div class="title-bar-controls">
+    <button class="win-btn">&#8211;</button>
+    <button class="win-btn">&#9633;</button>
+    <button class="win-btn close">&#10005;</button>
+  </div>
+</div>
+
+<!-- Menu Bar -->
+<div class="menu-bar">
+  <div class="menu-item">Burp</div>
+  <div class="menu-item">Project</div>
+  <div class="menu-item">Intruder</div>
+  <div class="menu-item">Repeater</div>
+  <div class="menu-item">View</div>
+  <div class="menu-item">Help</div>
+</div>
+
+<!-- Main Navigation Tabs -->
+<div class="main-nav">
+  <div class="nav-tab">Dashboard</div>
+  <div class="nav-tab">Target</div>
+  <div class="nav-tab active">Proxy</div>
+  <div class="nav-tab">Intruder</div>
+  <div class="nav-tab">Repeater</div>
+  <div class="nav-tab">Collaborator</div>
+  <div class="nav-tab">Sequencer</div>
+  <div class="nav-tab">Decoder</div>
+  <div class="nav-tab">Comparer</div>
+  <div class="nav-tab">Logger</div>
+  <div class="nav-tab">Organizer</div>
+  <div class="nav-tab">Extensions</div>
+  <div class="nav-tab">Learn</div>
+</div>
+
+<!-- Proxy Sub-Tabs -->
+<div class="proxy-tabs">
+  <div class="proxy-tab">Intercept</div>
+  <div class="proxy-tab">HTTP history</div>
+  <div class="proxy-tab">WebSockets history</div>
+  <div class="proxy-tab active">Match and replace</div>
+  <div class="proxy-tab">⚙ Proxy settings</div>
+</div>
+
+<!-- Content -->
+<div class="content">
+
+  <!-- HTTP Match and Replace Rules -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">?</div>
+      <span class="section-title">HTTP match and replace rules</span>
+      <div class="section-icon">⚙</div>
+    </div>
+    <div class="section-desc">Use these settings to automatically replace parts of HTTP requests and responses passing through the Proxy.</div>
+    <div class="section-option">
+      <input type="checkbox" id="http-scope">
+      <label for="http-scope">Only apply to in-scope items</label>
+    </div>
+
+    <div class="table-panel">
+      <div class="table-actions">
+        <button class="action-btn">Add</button>
+        <button class="action-btn">Edit</button>
+        <button class="action-btn">Remove</button>
+        <button class="action-btn">Up</button>
+        <button class="action-btn">Down</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Enabled</th>
+              <th>Item</th>
+              <th>Name</th>
+              <th>Match</th>
+              <th>Replace</th>
+              <th>Type</th>
+              <th>Comment</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="checkbox-cell"><input type="checkbox"></td>
+              <td class="item-val">Request header</td>
+              <td></td>
+              <td class="match-val">^User-Agent.*$</td>
+              <td class="replace-val">User-Agent: Mozilla/4.0 (compa…</td>
+              <td><span class="badge badge-regex">Regex</span></td>
+              <td class="comment-val">Emulate IE</td>
+            </tr>
+            <tr>
+              <td class="checkbox-cell"><input type="checkbox"></td>
+              <td class="item-val">Request header</td>
+              <td></td>
+              <td class="match-val">^User-Agent.*$</td>
+              <td class="replace-val">User-Agent: Mozilla/5.0 (iPhone…</td>
+              <td><span class="badge badge-regex">Regex</span></td>
+              <td class="comment-val">Emulate iOS</td>
+            </tr>
+            <tr>
+              <td class="checkbox-cell"><input type="checkbox"></td>
+              <td class="item-val">Request header</td>
+              <td></td>
+              <td class="match-val">^User-Agent.*$</td>
+              <td class="replace-val">User-Agent: Mozilla/5.0 (Linux; …</td>
+              <td><span class="badge badge-regex">Regex</span></td>
+              <td class="comment-val">Emulate Android</td>
+            </tr>
+            <tr>
+              <td class="checkbox-cell"><input type="checkbox"></td>
+              <td class="item-val">Request header</td>
+              <td></td>
+              <td class="match-val">^If-Modified-Since.*$</td>
+              <td class="replace-val"></td>
+              <td><span class="badge badge-regex">Regex</span></td>
+              <td class="comment-val">Require non-cached response</td>
+            </tr>
+            <tr>
+              <td class="checkbox-cell"><input type="checkbox"></td>
+              <td class="item-val">Request header</td>
+              <td></td>
+              <td class="match-val">^If-None-Match.*$</td>
+              <td class="replace-val"></td>
+              <td><span class="badge badge-regex">Regex</span></td>
+              <td class="comment-val">Require non-cached response</td>
+            </tr>
+            <tr>
+              <td class="checkbox-cell"><input type="checkbox"></td>
+              <td class="item-val">Request header</td>
+              <td></td>
+              <td class="match-val">^Referer.*$</td>
+              <td class="replace-val"></td>
+              <td><span class="badge badge-regex">Regex</span></td>
+              <td class="comment-val">Hide Referer header</td>
+            </tr>
+            <tr>
+              <td class="checkbox-cell"><input type="checkbox"></td>
+              <td class="item-val">Request header</td>
+              <td></td>
+              <td class="match-val">^Accept-Encoding.*$</td>
+              <td class="replace-val"></td>
+              <td><span class="badge badge-regex">Regex</span></td>
+              <td class="comment-val">Require non-compressed re…</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-expand">&#9654;</div>
+    </div>
+  </div>
+
+  <!-- WebSocket Match and Replace Rules -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">?</div>
+      <span class="section-title">WebSocket match and replace rules</span>
+      <div class="section-icon">⚙</div>
+    </div>
+    <div class="section-desc">Use these settings to automatically replace parts of WebSocket messages passing through the Proxy.</div>
+    <div class="section-option">
+      <input type="checkbox" id="ws-scope">
+      <label for="ws-scope">Only apply to in-scope items</label>
+    </div>
+
+    <div class="table-panel">
+      <div class="table-actions">
+        <button class="action-btn">Add</button>
+        <button class="action-btn">Edit</button>
+        <button class="action-btn">Remove</button>
+        <button class="action-btn">Up</button>
+        <button class="action-btn">Down</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Enabled</th>
+              <th>Direction</th>
+              <th>Match</th>
+              <th>Replace</th>
+              <th>Type</th>
+              <th>Comment</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="empty-table-row">
+              <td colspan="6"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-expand">&#9654;</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Status Bar -->
+<div class="status-bar">
+  <div class="status-left">
+    <span><span class="status-dot"></span>Event log</span>
+    <span class="status-issues">All issues</span>
+  </div>
+  <div class="status-right">
+    <div class="memory-bar-wrap">
+      <span>&#128195;</span>
+      <span>Memory: 180.6MB of 1.91GB</span>
+      <div class="memory-bar"><div class="memory-bar-fill"></div></div>
+    </div>
+    <button class="icon-btn">&#8718;</button>
+    <button class="icon-btn">&#10564;</button>
+  </div>
+</div>
+
+</body>
+</html>
