@@ -509,7 +509,7 @@ function subTabEnter(id) {
   toast(`→ Proxy "${el ? el.textContent.trim() : id}" এ enter হলো`);
 }
 
-// ── ─────────────────────────────────────────────
+// ── Toast ─────────────────────────────────────────────
 function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
